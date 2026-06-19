@@ -61,7 +61,13 @@ button:active{transform:scale(.98);}
 .rowline span:first-child{color:var(--text2);}
 .rowline b{font-weight:600;}
 .chip{font-size:12px;font-weight:600;padding:2px 9px;border-radius:20px;}
-.formulas{background:var(--bg2);border-radius:var(--radius);padding:4px 16px;margin-bottom:6px;overflow-x:auto;}
+.formulas{background:var(--bg2);border-radius:var(--radius);padding:6px 16px 10px;margin-bottom:6px;}
+.formulas .katex-display{margin:.5em 0;}
+@media(max-width:620px){.formulas .katex{font-size:.78em;}}
+.symkey{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px;}
+.symchip{font-size:14px;padding:3px 9px;border:1px solid var(--border);border-radius:7px;background:var(--bg);color:var(--text);cursor:pointer;line-height:1.3;}
+.symchip:hover{background:var(--bg2);}
+.symchip.on{border-color:var(--accent);color:var(--accent);background:var(--bg2);}
 .ctl{display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:center;margin-bottom:2px;}
 .plabel{font-size:13px;color:var(--text2);text-align:left;background:none;border:none;padding:0;cursor:pointer;border-bottom:1px dotted var(--text3);border-radius:0;}
 .plabel:hover{color:var(--text);background:none;}
@@ -115,16 +121,22 @@ code.cite{display:block;background:var(--bg2);border-radius:var(--radius);paddin
 <main>
   <h1>CASCADE clean-air-in-schools calculator</h1>
   <p class="lead">Poorly ventilated classrooms raise the spread of respiratory infections and may hold back learning; the interventions that fix this cost money. This tool shows the conditions under which the <b>social benefits exceed the costs</b>.</p>
-  <p class="note" style="margin-bottom:.5rem;">CASCADE = <b>C</b>lassroom <b>A</b>ir, <b>S</b>chool-acquired <b>C</b>ontagion, <b>A</b>nd <b>D</b>ownstream <b>E</b>conomics. It is a societal cost&ndash;benefit model, evaluated <b>per classroom per year</b>. A transparent companion to the decision model (Henderson et&nbsp;al., in preparation): the equations, every parameter, and the influence structure are shown and clickable.</p>
+  <p>CASCADE = <b>C</b>lassroom <b>A</b>ir, <b>S</b>chool-acquired <b>C</b>ontagion, <b>A</b>nd <b>D</b>ownstream <b>E</b>conomics &mdash; a transparent companion to the decision model (Henderson et&nbsp;al., in preparation), with every equation, parameter, and the influence structure shown and clickable.</p>
+  <p><b>How to read the headline.</b> The result is the <b>net social benefit per classroom per year</b> from a <b>societal</b> perspective: health-system savings, caregiver productivity, and children&#8217;s human capital, minus the annualised cost of the intervention (up-front capital is spread over its service life via the capital-recovery factor). A positive figure means the intervention is <b>worth it to society</b> &mdash; not that it fits a school&#8217;s operating budget; the benefit-cost ratio is simply benefit &divide; cost. Watch the value breakdown below: for cheap, CO&#8322;-lowering measures the headline is usually dominated by the cognitive (learning) channel, which is genuine but rests on the persistence factor &pi; that is not yet measured &mdash; so read those cases as &ldquo;potentially large but unproven&rdquo;.</p>
   <div class="flag"><b>Illustrative, not findings.</b> Values are in <b>New Zealand dollars (NZD)</b>, calibrated to realistic but approximate figures (sources shown when you click a parameter). The four <b>keystone parameters</b> (&kappa;, &sigma;, &pi;, &rho;<sub>c</sub>) are not yet well estimated; treat outputs as a structured what-if, and verify before citing. <button type="button" id="tour-start" style="margin-top:6px;">Take a 60-second tour</button></div>
 
   <h2>The model</h2>
+  <p>In plain language: the model traces how cleaner classroom air <b>cuts infections</b> and <b>lifts learning</b>, puts a dollar value on each, adds the <b>downstream benefit</b> when a child who stays well doesn&#8217;t pass an infection on to family and community, and then <b>subtracts the cost</b> of the intervention. The formula below is just that chain written out &mdash; <b>click any symbol</b> in the key beneath it to see what it means.</p>
   <div class="formulas" id="formulas">
     $$\mathrm{NSB}_j=\delta\,n\,\bigl(B^{\mathrm{dir}}_j+B^{\mathrm{sec}}_j\bigr)-C_j$$
     $$B^{\mathrm{dir}}_j=\underbrace{m\,\kappa\,\sigma_j\,\varphi\,\theta_j}_{\text{averted infections}}\bigl(p_{\mathrm{med}}c_{\mathrm{ch}}+u_{\mathrm{ch}}\lambda+\bar a\,\rho_{\mathrm{day}}\bigr)+\underbrace{g_j\,\rho_{\mathrm{SD}}}_{\text{cognitive}}$$
-    $$B^{\mathrm{sec}}_j=m\,\kappa\,\sigma_j\,\varphi\,\theta_j\bigl[c_{\mathrm{sup}}+M\,\psi_{w}\bigr]\qquad \theta_j=\frac{\eta_j\Delta q_j}{Q_0+\eta_j\Delta q_j}\qquad g_j=\beta\,\Delta\mathrm{CO}_2\,\pi\qquad M=\frac{\rho_c}{1-\rho_c}\qquad C_j=K\cdot\mathrm{CRF}(r,L)+E_{\mathrm{om}}$$
+    $$B^{\mathrm{sec}}_j=m\,\kappa\,\sigma_j\,\varphi\,\theta_j\bigl[c_{\mathrm{sup}}+M\,\psi_{w}\bigr]$$
+    $$\theta_j=\frac{\eta_j\Delta q_j}{Q_0+\eta_j\Delta q_j}\qquad g_j=\beta\,\Delta\mathrm{CO}_2\,\pi$$
+    $$M=\frac{\rho_c}{1-\rho_c}\qquad C_j=K\cdot\mathrm{CRF}(r,L)+E_{\mathrm{om}}$$
   </div>
-  <p class="note">In this calculator the population-weighted secondary sum &Sigma;<sub>k</sub>&psi;<sub>k</sub>(w<sub>k</sub>a<sub>k</sub>+c<sub>k</sub>+u<sub>k</sub>&lambda;) is collapsed into one weighted secondary-case cost &psi;<sub>w</sub>; adherence &eta; is folded into the single delivered-clean-air slider (&eta;&middot;&Delta;q); E<sub>om</sub> is annual energy + maintenance.</p>
+  <div class="symkey" id="symkey"></div>
+  <div class="def" id="symdef" hidden></div>
+  <p class="note">The population-weighted secondary sum &Sigma;<sub>k</sub>&psi;<sub>k</sub>(w<sub>k</sub>a<sub>k</sub>+c<sub>k</sub>+u<sub>k</sub>&lambda;) is collapsed here into one weighted secondary-case cost &psi;<sub>w</sub>; adherence &eta; is folded into the single delivered-clean-air slider (&eta;&middot;&Delta;q); E<sub>om</sub> is annual energy + maintenance.</p>
 
   <h2>Influence structure (live)</h2>
   <svg id="diagram" viewBox="0 0 760 300" width="100%" role="img" aria-label="Influence diagram: the intervention reduces transmission and averts infections, whose value flows to direct-to-child and secondary components and nets against cost; a cognitive path bypasses transmission and is active only for CO2-lowering interventions.">
@@ -138,8 +150,8 @@ code.cite{display:block;background:var(--bg2);border-radius:var(--radius);paddin
     <path class="flow" d="M344,156 L440,238" marker-end="url(#ah)"/>
     <path class="flow" d="M612,110 L646,146" marker-end="url(#ah)"/>
     <path class="flow" d="M598,242 L646,166" marker-end="url(#ah)"/>
-    <path class="flow" d="M218,240 C 430,308 622,308 702,184" marker-end="url(#ah)"/>
-    <text class="nsub" x="694" y="200" text-anchor="end" font-weight="600">&minus; cost</text>
+    <path class="flow" d="M171,258 C 320,294 470,292 598,290 C 655,288 699,245 700,184" marker-end="url(#ah)"/>
+    <text class="nsub" x="380" y="284" text-anchor="middle" font-weight="600">&minus; cost</text>
     <rect class="box" x="430" y="22" width="182" height="178" rx="9" fill="none" stroke="var(--c-group)" stroke-dasharray="4 3"/>
     <text class="nsub" x="521" y="16" text-anchor="middle" fill="var(--c-group)">Direct-to-child component</text>
     <g class="node" data-link="theta"><rect class="box" x="8" y="127" width="96" height="46" rx="7" stroke="var(--c-cost)"/><text class="nlab" x="56" y="146" text-anchor="middle">Intervention</text><text class="nsub" x="56" y="162" text-anchor="middle">adds &Delta;q</text></g>
@@ -229,9 +241,6 @@ code.cite{display:block;background:var(--bg2);border-radius:var(--radius);paddin
     </div>
   </div>
 
-  <h2>How to read this</h2>
-  <p style="font-size:14px;">The headline is the <b>net social benefit per classroom per year</b> from a societal perspective: health-system savings + caregiver productivity + children's human capital, minus the annualised intervention cost (capital is spread over its service life via the capital-recovery factor). A positive figure means the intervention is <b>worth it to society</b> &mdash; not that it fits a school's operating budget. The cognitive channel values durable learning gains at lifetime-earnings figures, so it can dominate; that is genuine, but it leans on the persistence factor &pi;, which is unmeasured.</p>
-
   <h2>What evidence would sharpen this model?</h2>
   <div id="agenda" style="font-size:14px;"></div>
 
@@ -267,10 +276,42 @@ code.cite{display:block;background:var(--bg2);border-radius:var(--radius);paddin
     <b>Using these results responsibly.</b> This is a transparent what-if built on illustrative parameters, several of them unmeasured. Use it to explore which assumptions matter and to frame an evidence agenda &mdash; not to quote a specific benefit-cost ratio as an established estimate. The headline figure for cheap, CO&#8322;-lowering measures is dominated by the uncertain cognitive channel and should be read as &ldquo;potentially large but unproven&rdquo;.
   </div>
 
+  <h2>References</h2>
+  <p class="note" style="margin-bottom:.4rem;">Key sources behind the calculator's parameters and persistence assumptions (full bibliographic details are in the manuscript).</p>
+  <ol style="font-size:13px;color:var(--text2);line-height:1.5;padding-left:20px;">
+    <li>Bailey DH, Duncan GJ, Odgers CL, Yu W (2017). Persistence and fadeout in the impacts of child and adolescent interventions. <i>Journal of Research on Educational Effectiveness</i>. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5779101/">link</a></li>
+    <li>Bailey DH, Duncan GJ, Cunha F, Foorman BR, Yeager DS (2020). Persistence and fade-out of educational-intervention effects. <i>Psychological Science in the Public Interest</i>. <a href="https://edre.uark.edu/_resources/pdf/Bailey_PSPI_2020.pdf">link</a></li>
+    <li>Kraft MA (2020). Interpreting effect sizes of education interventions. <i>Educational Researcher</i>.</li>
+    <li>Jacob BA, Lefgren L, Sims DP (2010). The persistence of teacher-induced learning gains. NBER Working Paper 14442. <a href="https://www.nber.org/papers/w14442">link</a></li>
+    <li>Chetty R, Friedman JN, Hilger N, Saez E, Schanzenbach DW, Yagan D (2011). How does your kindergarten classroom affect your earnings? Evidence from Project STAR. <i>Quarterly Journal of Economics</i> 126(4). <a href="https://www.nber.org/papers/w16381">link</a></li>
+    <li>Chetty R, Friedman JN, Rockoff JE (2014). Measuring the impacts of teachers II: teacher value-added and student outcomes in adulthood. <i>American Economic Review</i> 104(9). <a href="https://opportunityinsights.org/paper/teachers/">link</a></li>
+    <li>Wargocki P, Wyon DP, et al. Effects of classroom air quality (CO&#8322; / ventilation) on children's schoolwork performance.</li>
+    <li>Haverinen-Shaughnessy U, Moschandreas DJ, Shaughnessy RJ (2011). Association between ventilation rates and academic achievement. <i>Indoor Air</i>.</li>
+    <li>Gilraine M (2023). Air filters, pollution, and student achievement.</li>
+    <li>Stafford TM (2015). Indoor air quality and academic performance. <i>Journal of Environmental Economics &amp; Management</i> 70.</li>
+    <li>Mendell MJ, et al. (2013). Association of classroom ventilation with reduced illness absence. <i>Indoor Air</i>.</li>
+    <li>Rudnick SN, Milton DK (2003). Risk of indoor airborne infection transmission estimated from carbon dioxide concentration. <i>Indoor Air</i>.</li>
+    <li>Peng Z, Jimenez JL (2021). Exhaled CO&#8322; as a COVID-19 infection-risk proxy. <i>Environmental Science &amp; Technology Letters</i>.</li>
+    <li>Lloyd-Smith JO, Schreiber SJ, Kopp PE, Getz WM (2005). Superspreading and the effect of individual variation on disease emergence. <i>Nature</i> 438.</li>
+    <li>Honan G, et al. Systematic review of indoor environmental quality and ventilation in classrooms.</li>
+    <li>SINPHONIE project. Schools Indoor Pollution and Health: Observatory Network in Europe.</li>
+    <li>Bennett J, et al. Classroom ventilation and CO&#8322; in a New Zealand (Wellington) school.</li>
+    <li>Cauchemez S, et al. Estimating the impact of school closure on influenza transmission.</li>
+    <li>Litvinova M, et al. Reactive school closure and respiratory transmission.</li>
+    <li>Eames KTD, et al. School contacts and influenza transmission.</li>
+    <li>Forbes HJ, et al. Household and school secondary attack rates.</li>
+    <li>Flasche S, Edmunds WJ. The role of children in household transmission.</li>
+    <li>Ayd&#305;n et al. Incidence of infectious episodes in young children.</li>
+    <li>Wheeler et al. School days missed from medically attended respiratory illness.</li>
+    <li>GBD 2021. Global Burden of Disease: lower-respiratory infections.</li>
+    <li>PHARMAC. Health economic analysis (Aotearoa New Zealand). <a href="https://www.pharmac.govt.nz/medicines/how-medicines-are-funded/economic-analysis/pfpa/2-health-economic-analysis-at-pharmac">link</a></li>
+    <li>Stats NZ (2024). Labour market statistics (income): June 2024 quarter. <a href="https://www.stats.govt.nz/information-releases/labour-market-statistics-income-june-2024-quarter/">link</a></li>
+  </ol>
+
   <footer>
-    <p><b>Author:</b> Austin Henderson, Department of Economics, University of Otago. <b>Model:</b> CASCADE (Henderson et&nbsp;al., in preparation). <b>Version:</b> 0.3 (2026-06-19). Equations match the manuscript and its verification script.</p>
+    <p><b>Author:</b> Austin Henderson, Department of Economics, University of Otago. <b>Model:</b> CASCADE (Henderson et&nbsp;al., in preparation). <b>Version:</b> 0.4 (2026-06-19). Equations match the manuscript and its verification script.</p>
     <p><b>Cite this tool:</b></p>
-    <code class="cite" id="cite">Henderson, A. (2026). CASCADE clean-air-in-schools calculator (v0.3) [interactive tool]. https://austinhendersoneconomist.github.io/cascade-calculator/</code>
+    <code class="cite" id="cite">Henderson, A. (2026). CASCADE clean-air-in-schools calculator (v0.4) [interactive tool]. https://austinhendersoneconomist.github.io/cascade-calculator/</code>
     <button type="button" id="copy-cite" style="font-size:13px;">Copy citation</button>
     <p style="margin-top:10px;">Source &amp; issues: <a href="https://github.com/AustinHendersonEconomist/cascade-calculator">github.com/AustinHendersonEconomist/cascade-calculator</a>. Dollar figures are illustrative NZD; to read in USD, multiply by roughly 0.6.</p>
   </footer>
@@ -322,6 +363,40 @@ var DEFS={
 };
 var PRESETS={hepa:{Q0:4,dq:5.4,dco2:0,delta:1,K:900,L:5,r:0.03,EM:250},mech:{Q0:4,dq:7,dco2:400,delta:1,K:30000,L:20,r:0.03,EM:500},natural:{Q0:4,dq:3.6,dco2:400,delta:1,K:0,L:10,r:0.03,EM:30},outdoor:{Q0:4,dq:12,dco2:600,delta:0.25,K:600,L:5,r:0.03,EM:80}};
 var PRESETLAB={hepa:'HEPA',mech:'Mech vent',natural:'Natural vent',outdoor:'Outdoor'};
+var SYMKEY=[
+  ['NSB','Net social benefit','The headline result: society-wide benefit minus cost, per classroom-year (&delta;&middot;n&middot;(B<sup>dir</sup>+B<sup>sec</sup>) &minus; C<sub>j</sub>).',null],
+  ['B<sup>dir</sup>','Direct-to-child benefit','Value to the children breathing the cleaner air: their own averted illness plus durable learning.',null],
+  ['B<sup>sec</sup>','Secondary benefit','Downstream value when an averted child infection does not spread to caregivers and the community.',null],
+  ['&delta;','Feasibility discount','delta'],
+  ['n','Class size','n'],
+  ['m','Infection burden','m'],
+  ['&kappa;','School-attributable fraction','kappa'],
+  ['&sigma;','Treated-setting fraction','sigma'],
+  ['&phi;','Airborne fraction','phi'],
+  ['&theta;','Transmission reduction','How much the delivered clean air cuts per-exposure infection risk: &eta;&middot;&Delta;q / (Q&#8320;+&eta;&middot;&Delta;q).','dq'],
+  ['&eta;&middot;&Delta;q','Delivered clean air','dq'],
+  ['Q&#8320;','Baseline clean air','Q0'],
+  ['p<sub>med</sub>','Prob. medically attended','p_med'],
+  ['c<sub>ch</sub>','Child healthcare cost','c_ch'],
+  ['u<sub>ch</sub>','QALY loss / episode','u_ch'],
+  ['&lambda;','Value of a QALY','lambda'],
+  ['&#257;','School days lost / episode','abar'],
+  ['&rho;<sub>day</sub>','Value of a school day','rho_day'],
+  ['g','Durable cognitive gain','The learning that sticks: durable test-score SD gain per child-year, &beta;&middot;&Delta;CO&#8322;&middot;&pi;.','pi'],
+  ['&beta;','CO&#8322; dose-response','beta'],
+  ['&Delta;CO&#8322;','CO&#8322; reduction','dco2'],
+  ['&pi;','Persistence factor','pi'],
+  ['&rho;<sub>SD</sub>','Earnings per SD gain','rhosd'],
+  ['c<sub>sup</sub>','Caregiver cost','c_sup'],
+  ['M','Downstream multiplier','Expected out-of-school secondary infections per averted case: &rho;<sub>c</sub>/(1&minus;&rho;<sub>c</sub>).','rhoc'],
+  ['&rho;<sub>c</sub>','Onward reproduction','rhoc'],
+  ['&psi;<sub>w</sub>','Weighted secondary cost','psi_w'],
+  ['C<sub>j</sub>','Annual cost','Annualised intervention cost: capital K spread over life L at rate r (the CRF) plus annual energy and maintenance.','K'],
+  ['K','Up-front capital','K'],
+  ['L','Service life','L'],
+  ['r','Discount rate','r'],
+  ['E<sub>om</sub>','Energy + maintenance','EM']
+];
 
 var DEF={},V={},DEC={},MIN={},MAX={};
 Object.keys(SPEC).forEach(function(g){SPEC[g].forEach(function(s){DEF[s[0]]=s[5];DEC[s[0]]=s[6];MIN[s[0]]=s[2];MAX[s[0]]=s[3];});});
@@ -425,6 +500,16 @@ function fmtVal(id){var d=DEC[id];return d>0?V[id].toFixed(d):Math.round(V[id]).
 function syncRow(id){var sl=document.getElementById('s-'+id);if(sl)sl.value=V[id];var o=document.getElementById('v-'+id);if(o)o.textContent=fmtVal(id);}
 function defHTML(id){var d=DEFS[id];if(!d)return '';var h='<div class="def'+(d.key?' keystone':'')+'" id="d-'+id+'" hidden><div>'+d.def+'</div>';if(d.src)h+='<div style="margin-top:6px;"><span class="lbl">Baseline &amp; sources</span><br>'+d.src+'</div>';if(d.improve)h+='<div style="margin-top:6px;"><span class="lbl">How a study sharpens it</span><br>'+d.improve+'</div>';return h+'</div>';}
 function pulseNode(link){if(!link)return;var n=document.querySelector('#diagram .node[data-link="'+link+'"]');if(!n)return;n.classList.add('pulse');setTimeout(function(){n.classList.remove('pulse');},900);}
+function buildSymKey(){
+  var host=document.getElementById('symkey');if(!host)return;
+  SYMKEY.forEach(function(e,i){var b=document.createElement('button');b.type='button';b.className='symchip';b.setAttribute('data-i',i);b.innerHTML=e[0];host.appendChild(b);});
+  host.addEventListener('click',function(ev){var b=ev.target.closest('.symchip');if(!b)return;var i=+b.getAttribute('data-i'),e=SYMKEY[i],def,slider;
+    if(e.length===3){slider=e[2];def=(DEFS[slider]&&DEFS[slider].def)||'';}else{def=e[2];slider=e[3]||null;}
+    document.querySelectorAll('#symkey .symchip').forEach(function(c){c.classList.remove('on');});b.classList.add('on');
+    var d=document.getElementById('symdef');d.removeAttribute('hidden');d.innerHTML='<b>'+e[0]+'</b> &mdash; '+e[1]+'. '+def;
+    if(slider&&LINK[slider])pulseNode(LINK[slider]);
+  });
+}
 function build(){
   Object.keys(SPEC).forEach(function(g){var host=document.getElementById('grp-'+g);
     SPEC[g].forEach(function(s){var id=s[0],row=document.createElement('div');row.className='ctl';
@@ -458,6 +543,7 @@ readHash();
 Object.keys(V).forEach(syncRow);
 activePreset=detectPreset();markPresets();
 safe(function(){var html='<ul>';['kappa','sigma','pi','rhoc'].forEach(function(id){html+='<li><b>'+SPEC_label(id)+' ('+id+')</b>: '+DEFS[id].improve+'</li>';});document.getElementById('agenda').innerHTML=html+'</ul>';});
+safe(buildSymKey);
 render();
 
 document.getElementById('presets').addEventListener('click',function(e){var b=e.target.closest('button');if(b&&PRESETS[b.dataset.preset]){activePreset=b.dataset.preset;setAll(PRESETS[b.dataset.preset]);}});
