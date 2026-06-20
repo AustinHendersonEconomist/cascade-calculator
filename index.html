@@ -28,8 +28,8 @@ body{background:var(--bg);color:var(--text);margin:0;line-height:1.62;
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   font-size:16px;-webkit-font-smoothing:antialiased;}
 main{max-width:1060px;margin:0 auto;padding:2.2rem 1.25rem 4rem;}
-h1{font-family:var(--font-serif);font-size:27px;font-weight:600;margin:0 0 .4rem;letter-spacing:-.01em;}
-h2{font-family:var(--font-serif);font-size:20px;font-weight:600;margin:2rem 0 .7rem;}
+h1{font-size:26px;font-weight:600;margin:0 0 .4rem;letter-spacing:-.01em;}
+h2{font-size:19px;font-weight:600;margin:2rem 0 .7rem;}
 h3{font-size:14px;font-weight:600;color:var(--text2);margin:1.3rem 0 .5rem;text-transform:uppercase;letter-spacing:.04em;}
 p{margin:.45rem 0;}
 .lead{font-size:16px;margin-bottom:.6rem;}
@@ -48,7 +48,7 @@ button:active{transform:scale(.98);}
   #outputs{position:sticky;top:14px;}}
 #outputs>*{margin-bottom:14px;}
 .hero{background:var(--bg2);border-radius:var(--radius);padding:16px 18px;border:1px solid var(--border);}
-.hero .nsb{font-size:34px;font-weight:600;line-height:1.1;font-family:var(--font-serif);}
+.hero .nsb{font-size:34px;font-weight:600;line-height:1.1;}
 .hero .cur{font-size:14px;color:var(--text3);}
 .hero .row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:6px;}
 .badge{font-size:15px;font-weight:600;padding:5px 13px;border-radius:var(--radius);display:inline-block;}
@@ -123,7 +123,8 @@ code.cite{display:block;background:var(--bg2);border-radius:var(--radius);paddin
   <p class="lead">Poorly ventilated classrooms raise the spread of respiratory infections and may hold back learning; the interventions that fix this cost money. This tool shows the conditions under which the <b>social benefits exceed the costs</b>.</p>
   <p>CASCADE = <b>C</b>lassroom <b>A</b>ir, <b>S</b>chool-acquired <b>C</b>ontagion, <b>A</b>nd <b>D</b>ownstream <b>E</b>conomics &mdash; a transparent companion to the decision model (Henderson et&nbsp;al., in preparation), with every equation, parameter, and the influence structure shown and clickable.</p>
   <p><b>How to read the headline.</b> The result is the <b>net social benefit per classroom per year</b> from a <b>societal</b> perspective: health-system savings, caregiver productivity, and children&#8217;s human capital, minus the annualised cost of the intervention (up-front capital is spread over its service life via the capital-recovery factor). A positive figure means the intervention is <b>worth it to society</b> &mdash; not that it fits a school&#8217;s operating budget; the benefit-cost ratio is simply benefit &divide; cost. Watch the value breakdown below: for cheap, CO&#8322;-lowering measures the headline is usually dominated by the cognitive (learning) channel, which is genuine but rests on the persistence factor &pi; that is not yet measured &mdash; so read those cases as &ldquo;potentially large but unproven&rdquo;.</p>
-  <div class="flag"><b>Illustrative, not findings.</b> Values are in <b>New Zealand dollars (NZD)</b>, calibrated to realistic but approximate figures (sources shown when you click a parameter). The four <b>keystone parameters</b> (&kappa;, &sigma;, &pi;, &rho;<sub>c</sub>) are not yet well estimated; treat outputs as a structured what-if, and verify before citing. <button type="button" id="tour-start" style="margin-top:6px;">Take a 60-second tour</button></div>
+  <p class="note" style="margin-bottom:.7rem;">All figures are illustrative <b>New Zealand dollars (NZD)</b>, not findings; the four <b>critical unknowns</b> (&kappa;, &sigma;, &pi;, &rho;<sub>c</sub>) are not yet well estimated, so treat the output as a structured what-if and verify before citing.</p>
+  <button type="button" id="tour-start">Take a 60-second tour</button>
 
   <h2>The model</h2>
   <p>In plain language: the model traces how cleaner classroom air <b>cuts infections</b> and <b>lifts learning</b>, puts a dollar value on each, adds the <b>downstream benefit</b> when a child who stays well doesn&#8217;t pass an infection on to family and community, and then <b>subtracts the cost</b> of the intervention. The formula below is just that chain written out &mdash; <b>click any symbol</b> in the key beneath it to see what it means.</p>
@@ -138,7 +139,8 @@ code.cite{display:block;background:var(--bg2);border-radius:var(--radius);paddin
   <div class="def" id="symdef" hidden></div>
   <p class="note">The population-weighted secondary sum &Sigma;<sub>k</sub>&psi;<sub>k</sub>(w<sub>k</sub>a<sub>k</sub>+c<sub>k</sub>+u<sub>k</sub>&lambda;) is collapsed here into one weighted secondary-case cost &psi;<sub>w</sub>; adherence &eta; is folded into the single delivered-clean-air slider (&eta;&middot;&Delta;q); E<sub>om</sub> is annual energy + maintenance.</p>
 
-  <h2>Influence structure (live)</h2>
+  <h2>How the model fits together</h2>
+  <p>The diagram below is the same model as a picture. Reading left to right: an intervention raises the supply of clean air, which <b>reduces transmission</b> and <b>averts infections</b>; that value splits into the <b>direct-to-child component</b> (the child&#8217;s own averted illness plus durable learning) and the optional <b>secondary component</b> (onward cases avoided in caregivers and the wider community). A separate <b>cognitive path</b> (green, dashed) bypasses transmission entirely: by lowering CO&#8322;, ventilation and outdoor classrooms lift learning whether or not a child would have fallen ill, which is why it switches off for HEPA and germicidal UV. Everything is added up and the intervention&#8217;s cost is subtracted to give the net social benefit; the node colours match the value bars in the calculator.</p>
   <svg id="diagram" viewBox="0 0 760 300" width="100%" role="img" aria-label="Influence diagram: the intervention reduces transmission and averts infections, whose value flows to direct-to-child and secondary components and nets against cost; a cognitive path bypasses transmission and is active only for CO2-lowering interventions.">
     <defs>
       <marker id="ah" markerWidth="8" markerHeight="8" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="var(--c-cost)"/></marker>
@@ -170,7 +172,10 @@ code.cite{display:block;background:var(--bg2);border-radius:var(--radius);paddin
     </g>
     <text id="cogNote" class="nsub" x="442" y="106" fill="var(--c-cost)" font-style="italic" font-size="11"></text>
   </svg>
-  <p class="note" style="margin-top:-2px;">The green cognitive path is <b>active for CO&#8322;-lowering interventions</b> (ventilation, outdoor) and <b>off for HEPA / germicidal UV</b>. Node colours match the value bars below: <span style="color:var(--c-illness)">illness</span>, <span style="color:var(--c-cog)">cognitive</span>, <span style="color:var(--c-sec)">secondary</span>, <span style="color:var(--c-cost)">cost</span>. Click a slider name to pulse its node.</p>
+  <p class="note" style="margin-top:-2px;">Tip: click a symbol in the model key above, or a parameter name in the calculator, to pulse the matching box here.</p>
+
+  <h2>The calculator</h2>
+  <p>Set the inputs to match your situation; the result updates on the right. Every parameter opens at a <b>default</b> value, and you can see exactly where each one comes from: <b>click any parameter name</b> to reveal its definition, its baseline value, the source it is drawn from, and how a study would pin it down. Physical and epidemiological defaults come from the literature reviewed in the manuscript; dollar values are calibrated to New Zealand (the value of a QALY, lifetime earnings per test-score gain, NZ wages and healthcare costs); and the four <b>critical unknowns</b> sit at deliberately cautious central guesses.</p>
 
   <div class="presets" id="presets">
     <button type="button" data-preset="hepa">HEPA filtration</button>
@@ -183,7 +188,7 @@ code.cite{display:block;background:var(--bg2);border-radius:var(--radius);paddin
   <div class="layout">
     <div id="inputs">
       <h3>Your classroom (measured)</h3><div id="grp-a"></div>
-      <h3>Keystone parameters (not yet well estimated)</h3><div id="grp-b"></div>
+      <h3>Critical unknowns (important but not yet measured)</h3><div id="grp-b"></div>
       <h3>Setting and cost</h3><div id="grp-c"></div>
       <details><summary>Advanced parameters (disease burden, value of illness, cognition)</summary><div id="grp-d" style="margin:8px 0 4px;"></div></details>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem;">
@@ -226,7 +231,7 @@ code.cite{display:block;background:var(--bg2);border-radius:var(--radius);paddin
         <div style="font-size:13px;color:var(--text2);margin-bottom:2px;">Uncertainty in net social benefit</div>
         <div class="uband" id="o-uband"></div>
         <div class="rowline" style="margin-top:2px;"><span>90% range [5th, 95th] &middot; median</span><b id="o-urange">&mdash;</b></div>
-        <div class="note">Deterministic-range sensitivity: 4,000 independent uniform draws over the four keystones (&kappa; 0.10&ndash;0.40, &sigma; 0.20&ndash;0.90, &pi; 0.01&ndash;0.60, &rho;<sub>c</sub> 0.10&ndash;0.50). Not a calibrated probabilistic analysis.</div>
+        <div class="note">Deterministic-range sensitivity: 4,000 independent uniform draws over the four critical unknowns (&kappa; 0.10&ndash;0.40, &sigma; 0.20&ndash;0.90, &pi; 0.01&ndash;0.60, &rho;<sub>c</sub> 0.10&ndash;0.50). Not a calibrated probabilistic analysis.</div>
       </div>
 
       <div class="panel outpanel">
@@ -309,9 +314,9 @@ code.cite{display:block;background:var(--bg2);border-radius:var(--radius);paddin
   </ol>
 
   <footer>
-    <p><b>Author:</b> Austin Henderson, Department of Economics, University of Otago. <b>Model:</b> CASCADE (Henderson et&nbsp;al., in preparation). <b>Version:</b> 0.4 (2026-06-19). Equations match the manuscript and its verification script.</p>
+    <p><b>Author:</b> Austin Henderson, Department of Economics, University of Otago. <b>Model:</b> CASCADE (Henderson et&nbsp;al., in preparation). <b>Version:</b> 0.5 (2026-06-19). Equations match the manuscript and its verification script.</p>
     <p><b>Cite this tool:</b></p>
-    <code class="cite" id="cite">Henderson, A. (2026). CASCADE clean-air-in-schools calculator (v0.4) [interactive tool]. https://austinhendersoneconomist.github.io/cascade-calculator/</code>
+    <code class="cite" id="cite">Henderson, A. (2026). CASCADE clean-air-in-schools calculator (v0.5) [interactive tool]. https://austinhendersoneconomist.github.io/cascade-calculator/</code>
     <button type="button" id="copy-cite" style="font-size:13px;">Copy citation</button>
     <p style="margin-top:10px;">Source &amp; issues: <a href="https://github.com/AustinHendersonEconomist/cascade-calculator">github.com/AustinHendersonEconomist/cascade-calculator</a>. Dollar figures are illustrative NZD; to read in USD, multiply by roughly 0.6.</p>
   </footer>
@@ -513,7 +518,7 @@ function buildSymKey(){
 function build(){
   Object.keys(SPEC).forEach(function(g){var host=document.getElementById('grp-'+g);
     SPEC[g].forEach(function(s){var id=s[0],row=document.createElement('div');row.className='ctl';
-      row.innerHTML='<button type="button" class="plabel" id="b-'+id+'" aria-expanded="false">'+s[1]+(DEFS[id]&&DEFS[id].key?'<span class="tag">keystone</span>':'')+' <span class="car">&#9662;</span></button><span class="out" id="v-'+id+'"></span><input type="range" id="s-'+id+'" min="'+s[2]+'" max="'+s[3]+'" step="'+s[4]+'" value="'+s[5]+'"><div class="ticks"><span>'+s[2]+'</span><span class="dflt">def '+s[5]+'</span><span>'+s[3]+'</span></div>';
+      row.innerHTML='<button type="button" class="plabel" id="b-'+id+'" aria-expanded="false">'+s[1]+(DEFS[id]&&DEFS[id].key?'<span class="tag">critical</span>':'')+' <span class="car">&#9662;</span></button><span class="out" id="v-'+id+'"></span><input type="range" id="s-'+id+'" min="'+s[2]+'" max="'+s[3]+'" step="'+s[4]+'" value="'+s[5]+'"><div class="ticks"><span>'+s[2]+'</span><span class="dflt">def '+s[5]+'</span><span>'+s[3]+'</span></div>';
       host.appendChild(row);host.insertAdjacentHTML('beforeend',defHTML(id));V[id]=s[5];
       row.querySelector('input').addEventListener('input',function(e){V[id]=parseFloat(e.target.value);document.getElementById('v-'+id).textContent=fmtVal(id);activePreset=detectPreset();markPresets();render();});
       var btn=document.getElementById('b-'+id);
@@ -533,7 +538,7 @@ function dl(name,type,data){try{var b=new Blob([data],{type:type}),u=URL.createO
 function exportJSON(){var r=compute(V);dl('cascade-scenario.json','application/json',JSON.stringify({currency:'NZD',inputs:V,outputs:r},null,2));}
 function exportCSV(){var r=compute(V),rows=[['type','key','value']],k;for(k in V)rows.push(['input',k,V[k]]);['Cj','theta','di','g','gval','nsb','bcr','illness','cog','secondary'].forEach(function(k){rows.push(['output',k,r[k]]);});dl('cascade-scenario.csv','text/csv',rows.map(function(r){return r.join(',');}).join('\n'));}
 
-var TOUR=[['#presets','Start here. Pick an intervention preset; everything below recalculates instantly.'],['#o-nsb','This is the headline: net social benefit per classroom per year, in NZD. Green badge = worth it to society.'],['#grp-a','Adjust your classroom: the air-quality gain you measured (or expect).'],['#grp-b','These four keystones are the big unknowns. Click any name to see the evidence and how a study would pin it down.'],['#diagram','Watch the green cognitive path switch on for ventilation and off for HEPA. Then explore, and use "Copy shareable link" to send a scenario.']];
+var TOUR=[['#presets','Start here. Pick an intervention preset; everything below recalculates instantly.'],['#o-nsb','This is the headline: net social benefit per classroom per year, in NZD. Green badge = worth it to society.'],['#grp-a','Adjust your classroom: the air-quality gain you measured (or expect).'],['#grp-b','These four critical unknowns are the big drivers and the least certain. Click any name to see the evidence and how a study would pin it down.'],['#diagram','Watch the green cognitive path switch on for ventilation and off for HEPA. Then explore, and use "Copy shareable link" to send a scenario.']];
 var tstep=0;
 function showTour(i){var wrap=document.getElementById('tourwrap'),spot=document.getElementById('spot'),box=document.getElementById('tourbox');if(i>=TOUR.length){endTour();return;}tstep=i;var el=document.querySelector(TOUR[i][0]);if(!el){showTour(i+1);return;}var rc=el.getBoundingClientRect();wrap.style.display='block';spot.style.display='block';spot.style.left=(rc.left-6)+'px';spot.style.top=(rc.top-6)+'px';spot.style.width=(rc.width+12)+'px';spot.style.height=(rc.height+12)+'px';box.style.display='block';var bt=Math.min(window.innerHeight-130,rc.bottom+10);box.style.top=bt+'px';box.style.left=Math.max(10,Math.min(window.innerWidth-310,rc.left))+'px';box.innerHTML='<div style="margin-bottom:8px;">'+TOUR[i][1]+'</div><div style="display:flex;gap:8px;justify-content:space-between;"><button type="button" id="t-skip" style="font-size:13px;">Skip</button><button type="button" id="t-next" style="font-size:13px;">'+(i===TOUR.length-1?'Done':'Next')+'</button></div>';document.getElementById('t-skip').onclick=endTour;document.getElementById('t-next').onclick=function(){showTour(i+1);};}
 function endTour(){document.getElementById('tourwrap').style.display='none';document.getElementById('spot').style.display='none';document.getElementById('tourbox').style.display='none';}
