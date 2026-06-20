@@ -43,6 +43,11 @@ button:active{transform:scale(.98);}
   border-radius:0 var(--radius) var(--radius) 0;padding:10px 14px;font-size:13px;color:var(--text2);margin:.6rem 0 1rem;}
 .presets{display:flex;gap:8px;flex-wrap:wrap;margin:.2rem 0 1rem;}
 .presets button.on{border-color:var(--accent);background:var(--bg2);color:var(--accent);font-weight:600;}
+.intvdefs{display:grid;grid-template-columns:1fr;gap:8px;margin:2px 0 10px;font-size:13px;color:var(--text2);line-height:1.5;}
+@media(min-width:620px){.intvdefs{grid-template-columns:1fr 1fr;}}
+.intvdefs>div{background:var(--bg2);border-radius:var(--radius);padding:9px 12px;border:1px solid transparent;}
+.intvdefs>div.on{border-color:var(--accent);}
+.intvdefs b{color:var(--text);}
 .layout{display:grid;grid-template-columns:1fr;gap:22px;}
 @media(min-width:900px){.layout{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;}
   #outputs{position:sticky;top:14px;}}
@@ -183,7 +188,13 @@ code.cite{display:block;background:var(--bg2);border-radius:var(--radius);paddin
     <button type="button" data-preset="natural">Natural ventilation</button>
     <button type="button" data-preset="outdoor">Outdoor classroom</button>
   </div>
-  <p class="note" style="margin-top:-6px;margin-bottom:1rem;">No measurements of your own? <b>Start from a preset and adjust.</b> Click any parameter for its definition, baseline value, sources, and how a study would sharpen it.</p>
+  <div class="intvdefs">
+    <div data-intv="hepa"><b>HEPA filtration</b> &mdash; a portable air cleaner that pulls room air through a high-efficiency filter, trapping virus-laden particles and returning cleaned air to the room. It raises the supply of pathogen-free air without bringing in any outside air, so it does <b>not</b> lower CO&#8322;. Low capital, recurring filters and electricity; works in any weather.</div>
+    <div data-intv="mech"><b>Mechanical ventilation</b> &mdash; a powered system (HVAC) that supplies filtered outdoor air and extracts stale indoor air. It both removes pathogens <b>and</b> lowers CO&#8322;, so it carries the learning benefit. High capital cost and an energy penalty, but reliable and continuous.</div>
+    <div data-intv="natural"><b>Natural ventilation</b> &mdash; simply letting outdoor air in through open windows, doors or vents, with no fans &mdash; the cheapest option. It lowers CO&#8322; and dilutes airborne virus, but its effect depends on the weather and on windows actually being open, so it is intermittent.</div>
+    <div data-intv="outdoor"><b>Outdoor classroom</b> &mdash; moving teaching outdoors or into an open-sided space, where effectively unlimited fresh air pushes transmission risk close to zero and CO&#8322; is negligible. Near-zero cost, but only feasible part of the time (weather, season, curriculum), captured by the feasibility discount &delta;.</div>
+  </div>
+  <p class="note" style="margin-top:-2px;margin-bottom:1rem;">No measurements of your own? <b>Start from a preset and adjust.</b> Click any parameter for its definition, baseline value, sources, and how a study would sharpen it.</p>
 
   <div class="layout">
     <div id="inputs">
@@ -314,9 +325,9 @@ code.cite{display:block;background:var(--bg2);border-radius:var(--radius);paddin
   </ol>
 
   <footer>
-    <p><b>Author:</b> Austin Henderson, Department of Economics, University of Otago. <b>Model:</b> CASCADE (Henderson et&nbsp;al., in preparation). <b>Version:</b> 0.5 (2026-06-19). Equations match the manuscript and its verification script.</p>
+    <p><b>Author:</b> Austin Henderson, Department of Economics, University of Otago. <b>Model:</b> CASCADE (Henderson et&nbsp;al., in preparation). <b>Version:</b> 0.6 (2026-06-19). Equations match the manuscript and its verification script.</p>
     <p><b>Cite this tool:</b></p>
-    <code class="cite" id="cite">Henderson, A. (2026). CASCADE clean-air-in-schools calculator (v0.5) [interactive tool]. https://austinhendersoneconomist.github.io/cascade-calculator/</code>
+    <code class="cite" id="cite">Henderson, A. (2026). CASCADE clean-air-in-schools calculator (v0.6) [interactive tool]. https://austinhendersoneconomist.github.io/cascade-calculator/</code>
     <button type="button" id="copy-cite" style="font-size:13px;">Copy citation</button>
     <p style="margin-top:10px;">Source &amp; issues: <a href="https://github.com/AustinHendersonEconomist/cascade-calculator">github.com/AustinHendersonEconomist/cascade-calculator</a>. Dollar figures are illustrative NZD; to read in USD, multiply by roughly 0.6.</p>
   </footer>
@@ -528,7 +539,8 @@ function build(){
 }
 var activePreset=null;
 function detectPreset(){var k,id,ok;for(k in PRESETS){ok=true;for(id in PRESETS[k])if(Math.abs((V[id]||0)-PRESETS[k][id])>1e-9){ok=false;break;}if(ok)return k;}return null;}
-function markPresets(){var btns=document.querySelectorAll('#presets button');btns.forEach(function(b){b.classList.toggle('on',b.dataset.preset===activePreset);});}
+function markPresets(){var btns=document.querySelectorAll('#presets button');btns.forEach(function(b){b.classList.toggle('on',b.dataset.preset===activePreset);});
+  document.querySelectorAll('.intvdefs [data-intv]').forEach(function(d){d.classList.toggle('on',d.getAttribute('data-intv')===activePreset);});}
 function setAll(obj){Object.keys(obj).forEach(function(k){if(k in V){V[k]=obj[k];syncRow(k);}});activePreset=detectPreset();markPresets();render();}
 
 function writeHash(){var p=[];Object.keys(V).forEach(function(k){p.push(k+'='+V[k]);});history.replaceState(null,'','#'+p.join('&'));}
