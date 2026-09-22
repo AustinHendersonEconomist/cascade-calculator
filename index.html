@@ -1,579 +1,98 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CASCADE clean-air-in-schools calculator</title>
-<meta name="description" content="Interactive, transparent companion to the CASCADE decision model: when do the social benefits of clean-air interventions in schools exceed their costs? Illustrative New Zealand-dollar values.">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
-<style>
-:root{
-  --bg:#ffffff; --bg2:#f6f5f0; --bg3:#ebe9e1; --text:#1b1b19; --text2:#5f5e5a; --text3:#8a8980;
-  --border:rgba(0,0,0,.13); --accent:#1d5a93; --accent2:#2f6f4f;
-  --ok-bg:#E1F5EE; --ok-tx:#0F6E56; --no-bg:#FCEBEB; --no-tx:#A32D2D;
-  --c-illness:#378ADD; --c-cog:#1D9E75; --c-sec:#D4537E; --c-cost:#888780; --c-group:#6B9080;
-  --radius:10px;
-  --font-serif:"Iowan Old Style","Palatino Linotype",Palatino,"Source Serif Pro",Georgia,Cambria,serif;
-}
-@media (prefers-color-scheme:dark){
-  :root{
-    --bg:#1c1c1a; --bg2:#262623; --bg3:#312f2b; --text:#ededeb; --text2:#b4b2a9; --text3:#888780;
-    --border:rgba(255,255,255,.15); --accent:#7fb1e0; --accent2:#7ec3a0;
-    --ok-bg:#0F6E56; --ok-tx:#9FE1CB; --no-bg:#791F1F; --no-tx:#F7C1C1;
-    --c-illness:#85B7EB; --c-cog:#5DCAA5; --c-sec:#ED93B1; --c-cost:#B4B2A9; --c-group:#9FE1CB;
-  }
-}
-*{box-sizing:border-box}
-body{background:var(--bg);color:var(--text);margin:0;line-height:1.62;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  font-size:16px;-webkit-font-smoothing:antialiased;}
-main{max-width:1060px;margin:0 auto;padding:2.2rem 1.25rem 4rem;}
-h1{font-size:26px;font-weight:600;margin:0 0 .4rem;letter-spacing:-.01em;}
-h2{font-size:19px;font-weight:600;margin:2rem 0 .7rem;}
-h3{font-size:14px;font-weight:600;color:var(--text2);margin:1.3rem 0 .5rem;text-transform:uppercase;letter-spacing:.04em;}
-p{margin:.45rem 0;}
-.lead{font-size:16px;margin-bottom:.6rem;}
-.note{font-size:13px;color:var(--text3);}
-a{color:var(--accent);}
-button{font:inherit;font-size:14px;background:transparent;color:var(--text);border:1px solid var(--border);
-  border-radius:var(--radius);padding:7px 13px;cursor:pointer;transition:background .12s,transform .05s;}
-button:hover{background:var(--bg2);}
-button:active{transform:scale(.98);}
-.flag{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--accent);
-  border-radius:0 var(--radius) var(--radius) 0;padding:10px 14px;font-size:13px;color:var(--text2);margin:.6rem 0 1rem;}
-.presets{display:flex;gap:8px;flex-wrap:wrap;margin:.2rem 0 1rem;}
-.presets button.on{border-color:var(--accent);background:var(--bg2);color:var(--accent);font-weight:600;}
-.intvdefs{display:grid;grid-template-columns:1fr;gap:8px;margin:2px 0 10px;font-size:13px;color:var(--text2);line-height:1.5;}
-@media(min-width:620px){.intvdefs{grid-template-columns:1fr 1fr;}}
-.intvdefs>div{background:var(--bg2);border-radius:var(--radius);padding:9px 12px;border:1px solid transparent;}
-.intvdefs>div.on{border-color:var(--accent);}
-.intvdefs b{color:var(--text);}
-.layout{display:grid;grid-template-columns:1fr;gap:22px;}
-@media(min-width:900px){.layout{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;}
-  #outputs{position:sticky;top:14px;}}
-#outputs>*{margin-bottom:14px;}
-.hero{background:var(--bg2);border-radius:var(--radius);padding:16px 18px;border:1px solid var(--border);}
-.hero .nsb{font-size:34px;font-weight:600;line-height:1.1;}
-.hero .cur{font-size:14px;color:var(--text3);}
-.hero .row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:6px;}
-.badge{font-size:15px;font-weight:600;padding:5px 13px;border-radius:var(--radius);display:inline-block;}
-.bcr{font-size:14px;color:var(--text2);}
-.bcr b{font-size:18px;color:var(--text);}
-.say{font-size:14px;color:var(--text2);margin-top:10px;border-top:1px solid var(--border);padding-top:10px;}
-.panel{border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;font-size:14px;background:var(--bg);}
-.outpanel{border-left:3px solid var(--accent);}
-.rowline{display:flex;justify-content:space-between;gap:10px;margin-bottom:7px;}
-.rowline span:first-child{color:var(--text2);}
-.rowline b{font-weight:600;}
-.chip{font-size:12px;font-weight:600;padding:2px 9px;border-radius:20px;}
-.formulas{background:var(--bg2);border-radius:var(--radius);padding:6px 16px 10px;margin-bottom:6px;}
-.formulas .katex-display{margin:.5em 0;}
-@media(max-width:620px){.formulas .katex{font-size:.78em;}}
-.symkey{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px;}
-.symchip{font-size:14px;padding:3px 9px;border:1px solid var(--border);border-radius:7px;background:var(--bg);color:var(--text);cursor:pointer;line-height:1.3;}
-.symchip:hover{background:var(--bg2);}
-.symchip.on{border-color:var(--accent);color:var(--accent);background:var(--bg2);}
-.ctl{display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:center;margin-bottom:2px;}
-.plabel{font-size:13px;color:var(--text2);text-align:left;background:none;border:none;padding:0;cursor:pointer;border-bottom:1px dotted var(--text3);border-radius:0;}
-.plabel:hover{color:var(--text);background:none;}
-.plabel .car{font-size:10px;color:var(--text3);}
-.ctl .out{font-size:13px;font-weight:600;text-align:right;min-width:74px;}
-.ctl input[type=range]{grid-column:1/3;width:100%;}
-.ticks{grid-column:1/3;display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin:-2px 0 8px;}
-.ticks .dflt{color:var(--accent);}
-.def{font-size:13px;color:var(--text2);background:var(--bg2);border-radius:var(--radius);padding:10px 12px;margin:2px 0 10px;border-left:3px solid var(--c-group);}
-.def.keystone{border-left-color:var(--accent);}
-.def .lbl{font-weight:600;color:var(--text3);text-transform:uppercase;font-size:11px;letter-spacing:.04em;}
-.tag{display:inline-block;font-size:11px;font-weight:600;color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:0 6px;margin-left:6px;}
-input[type=range]{-webkit-appearance:none;appearance:none;height:4px;border-radius:3px;background:var(--bg3);outline:none;margin:6px 0 2px;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:var(--accent);cursor:pointer;border:none;}
-input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;background:var(--accent);cursor:pointer;border:none;}
-details{border:1px solid var(--border);border-radius:var(--radius);padding:4px 14px;margin-top:8px;}
-summary{cursor:pointer;font-size:14px;color:var(--text2);padding:8px 0;}
-.bar{display:flex;align-items:center;gap:8px;margin-top:6px;}
-.bar .l{font-size:12px;color:var(--text2);width:120px;}
-.bar .t{flex:1;height:13px;background:var(--bg3);border-radius:3px;overflow:hidden;}
-.bar .f{display:block;height:100%;}
-.bar .v{font-size:12px;font-weight:600;width:84px;text-align:right;}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin-top:9px;}
-.legend span{display:flex;align-items:center;gap:5px;}
-.sw{width:10px;height:10px;border-radius:2px;display:inline-block;}
-.uband{position:relative;height:30px;margin:8px 0 4px;}
-.uaxis{position:absolute;top:14px;left:0;right:0;height:2px;background:var(--bg3);}
-.urange{position:absolute;top:9px;height:12px;background:var(--accent);opacity:.35;border-radius:3px;}
-.umed{position:absolute;top:5px;width:2px;height:20px;background:var(--accent);}
-.uzero{position:absolute;top:2px;width:1px;height:26px;background:var(--text3);}
-.uzero::after{content:'0';position:absolute;top:-15px;left:-3px;font-size:11px;color:var(--text3);}
-table.cmp{width:100%;border-collapse:collapse;font-size:13px;}
-table.cmp th,table.cmp td{text-align:right;padding:5px 6px;border-bottom:1px solid var(--border);}
-table.cmp th:first-child,table.cmp td:first-child{text-align:left;}
-table.cmp th{color:var(--text2);font-weight:600;}
-svg .nlab{font-size:12px;fill:var(--text);}
-svg .nsub{font-size:11px;fill:var(--text2);}
-svg .flow{stroke:var(--c-cost);stroke-width:1.6;fill:none;}
-svg .box{fill:var(--bg);stroke-width:1.4;}
-.node.pulse rect{stroke-width:3;}
-#cogPath{transition:opacity .2s;}
-.tourwrap{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;display:none;}
-.tourbox{position:fixed;z-index:51;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;max-width:300px;font-size:14px;box-shadow:0 6px 24px rgba(0,0,0,.25);}
-.spot{position:fixed;z-index:50;border:2px solid var(--accent);border-radius:var(--radius);pointer-events:none;transition:all .2s;}
-footer{margin-top:2.4rem;padding-top:1rem;border-top:1px solid var(--border);font-size:13px;color:var(--text3);}
-code.cite{display:block;background:var(--bg2);border-radius:var(--radius);padding:8px 10px;font-size:12px;color:var(--text2);margin:6px 0;white-space:pre-wrap;}
-.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
-</style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Explore the conditions under which cleaner classroom air could justify its costs. Transparent scenarios, reviewed evidence and break-even thresholds.">
+<meta name="theme-color" content="#142f35"><title>CASCADE — A clearer case for clean air</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%23142f35'/%3E%3Cpath d='M10 17h23M15 24h23M10 31h19' stroke='%23c7e6bd' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="refinements.css"><script type="module" src="app.mjs"></script>
 </head>
 <body>
+<a href="#workspace" class="skip">Skip to calculator</a>
+<header class="site-header"><div class="header-inner">
+  <a class="brand" href="#" aria-label="CASCADE home"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M4 10h23M9 18h23M4 26h19"/></svg><span>CASCADE<small>Clean air. Clearer decisions.</small></span></a>
+  <nav aria-label="Main navigation"><a href="#workspace" class="active" aria-current="page">Calculator</a><a href="research.html">Research</a><a href="nz-policy/nz-classroom.html">NZ classroom</a></nav>
+  <span class="review-label"><i></i> Research preview</span>
+</div></header>
 <main>
-  <h1>CASCADE clean-air-in-schools calculator</h1>
-  <p class="lead">Poorly ventilated classrooms raise the spread of respiratory infections and may hold back learning; the interventions that fix this cost money. This tool shows the conditions under which the <b>social benefits exceed the costs</b>.</p>
-  <p>CASCADE = <b>C</b>lassroom <b>A</b>ir, <b>S</b>chool-acquired <b>C</b>ontagion, <b>A</b>nd <b>D</b>ownstream <b>E</b>conomics &mdash; a transparent companion to the decision model (Henderson et&nbsp;al., in preparation), with every equation, parameter, and the influence structure shown and clickable.</p>
-  <p><b>How to read the headline.</b> The result is the <b>net social benefit per classroom per year</b> from a <b>societal</b> perspective: health-system savings, caregiver productivity, and children&#8217;s human capital, minus the annualised cost of the intervention (up-front capital is spread over its service life via the capital-recovery factor). A positive figure means the intervention is <b>worth it to society</b> &mdash; not that it fits a school&#8217;s operating budget; the benefit-cost ratio is simply benefit &divide; cost. Watch the value breakdown below: for cheap, CO&#8322;-lowering measures the headline is usually dominated by the cognitive (learning) channel, which is genuine but rests on the persistence factor &pi; that is not yet measured &mdash; so read those cases as &ldquo;potentially large but unproven&rdquo;.</p>
-  <p class="note" style="margin-bottom:.7rem;">All figures are illustrative <b>New Zealand dollars (NZD)</b>, not findings; the four <b>critical unknowns</b> (&kappa;, &sigma;, &pi;, &rho;<sub>c</sub>) are not yet well estimated, so treat the output as a structured what-if and verify before citing.</p>
-  <button type="button" id="tour-start">Take a 60-second tour</button>
-
-  <h2>The model</h2>
-  <p>In plain language: the model traces how cleaner classroom air <b>cuts infections</b> and <b>lifts learning</b>, puts a dollar value on each, adds the <b>downstream benefit</b> when a child who stays well doesn&#8217;t pass an infection on to family and community, and then <b>subtracts the cost</b> of the intervention. The formula below is just that chain written out &mdash; <b>click any symbol</b> in the key beneath it to see what it means.</p>
-  <div class="formulas" id="formulas">
-    $$\mathrm{NSB}_j=\delta\,n\,\bigl(B^{\mathrm{dir}}_j+B^{\mathrm{sec}}_j\bigr)-C_j$$
-    $$B^{\mathrm{dir}}_j=\underbrace{m\,\kappa\,\sigma_j\,\varphi\,\theta_j}_{\text{averted infections}}\bigl(p_{\mathrm{med}}c_{\mathrm{ch}}+u_{\mathrm{ch}}\lambda+\bar a\,\rho_{\mathrm{day}}\bigr)+\underbrace{g_j\,\rho_{\mathrm{SD}}}_{\text{cognitive}}$$
-    $$B^{\mathrm{sec}}_j=m\,\kappa\,\sigma_j\,\varphi\,\theta_j\bigl[c_{\mathrm{sup}}+M\,\psi_{w}\bigr]$$
-    $$\theta_j=\frac{\eta_j\Delta q_j}{Q_0+\eta_j\Delta q_j}\qquad g_j=\beta\,\Delta\mathrm{CO}_2\,\pi$$
-    $$M=\frac{\rho_c}{1-\rho_c}\qquad C_j=K\cdot\mathrm{CRF}(r,L)+E_{\mathrm{om}}$$
+<section class="intro" aria-labelledby="page-title">
+ <div><div class="eyebrow">THE CLEAN-AIR DECISION EXPLORER</div><h1 id="page-title">A clearer case<br>for <em>clean air.</em></h1><p>What would cleaner classroom air need to achieve to justify its cost? Explore the assumptions, the trade-offs, and the evidence.</p><a class="text-link" href="#workspace">Build your scenario <span aria-hidden="true">↗</span></a></div>
+ <aside class="intro-card"><div class="air-lines" aria-hidden="true"><svg viewBox="0 0 320 190"><path d="M-10 40H95Q150 40 150 90T210 140H335M-10 70H85Q130 70 130 110T190 170H335M-10 10H110Q180 10 180 65T240 110H335"/><circle cx="84" cy="70" r="6"/><circle cx="239" cy="110" r="6"/></svg></div><span class="eyebrow">A QUESTION, NOT A FORECAST</span><h2>Better decisions start<br>with visible assumptions.</h2><p>Particle removal is measurable. Health and lasting learning benefits require their own evidence.</p><a href="#evidence">See what the studies support <span aria-hidden="true">↗</span></a></aside>
+</section>
+<div class="scope-strip"><span class="scope-dot"></span><p><strong>Illustrative scenarios.</strong> Values are generic monetary units (MU), not New Zealand prices or established benefit estimates. Learning and community-transmission benefits are excluded by default.</p><span>Research status<br><strong>Exploratory framework</strong></span></div>
+<section class="start-guide" aria-label="Choose a starting point">
+ <a href="#workspace"><span class="eyebrow">01 / EXPLORE</span><strong>Build a conditional scenario</strong><span>Enter an effect and its costs. Find what would need to be true.</span><b aria-hidden="true">↘</b></a>
+ <a href="research.html"><span class="eyebrow">02 / UNDERSTAND</span><strong>Read the research framework</strong><span>See how evidence, outcomes and economic values fit together.</span><b aria-hidden="true">↗</b></a>
+ <a href="nz-policy/nz-classroom.html"><span class="eyebrow">03 / APPLY</span><strong>Explore an older NZ classroom</strong><span>A separate cost and break-even case in New Zealand dollars.</span><b aria-hidden="true">↗</b></a>
+</section>
+<div id="notice" class="notice" role="status" hidden></div>
+<section id="workspace" class="workspace" aria-label="Scenario calculator">
+ <div class="section-top"><div><span class="eyebrow">01 / EXPLORE</span><h2>Your classroom. Your assumptions.</h2></div><button class="quiet" id="reset">Reset example <span aria-hidden="true">↺</span></button></div>
+ <details class="worked-examples">
+ <summary>Start with a worked example from the manuscript</summary>
+ <p>Three hypothetical scenarios for the same 25-pupil cohort over five years. These are demonstrations of the framework, not estimates for a real school. Each button replaces all inputs; saved comparisons remain available.</p>
+ <div class="example-grid">
+ <article><span class="eyebrow">S1 / CHILD HEALTH</span><h3>What counts as a benefit?</h3><p>Include healthcare resources and an explicit monetary health value. Exclude caregiver time and learning.</p><button type="button" data-example="S1">Load child-health example</button></article>
+ <article><span class="eyebrow">S2 / WIDER SCOPE</span><h3>Include caregiver time</h3><p>Keep the same physical effect and costs; add 150 MU per avoided episode for caregiver time.</p><button type="button" data-example="S2">Load caregiver-time example</button></article>
+ <article><span class="eyebrow">S5 / NULL EFFECT</span><h3>Keep a no-benefit case</h3><p>Assume an infection episode-rate ratio of 1. Costs remain; infection and learning benefits are zero.</p><button type="button" data-example="S5">Load null-effect example</button></article>
+ </div><p class="hint">All values are synthetic MU. Healthcare is represented as 100% × 20 MU to encode an expected cost of 20 MU per episode; this does not imply that all infections require medical care. <a href="research.html#examples">See the calculation and costing convention ↗</a></p>
+ <p id="example-status" role="status"></p>
+</details>
+<div class="workspace-grid">
+  <form id="scenario-form" novalidate>
+   <section class="input-card"><div class="card-heading"><span class="step">1</span><div><h3>Define the comparison</h3><p>One stable cohort, compared with no added intervention.</p></div></div>
+    <label class="field-label" for="scenario-name">Scenario name</label><input id="scenario-name" type="text" maxlength="60" value="Portable filtration example">
+    <div class="preset-row" aria-label="Illustrative starting points"><button type="button" data-preset="hepa" class="selected" aria-pressed="true">Portable filtration</button><button type="button" data-preset="ventilation" aria-pressed="false">Ventilation</button><button type="button" data-preset="custom" aria-pressed="false">Custom</button></div>
+    <p class="hint">Starting points change added airflow and costs only. They are examples, not quotes or technology rankings.</p>
+    <div class="field-grid" id="cohort-fields"></div>
+   </section>
+   <section class="input-card"><div class="card-heading"><span class="step">2</span><div><h3>Choose an outcome route</h3><p>Use one route for the endpoint you want to estimate.</p></div></div>
+    <label class="field-label" for="route">Basis for the effect</label><select id="route" name="route"><option value="mechanistic">Airflow → hypothetical infection scenario</option><option value="infection">Matched study → infection episodes</option><option value="absence">Matched study → absent days</option></select>
+    <div class="route-note" id="route-note"></div>
+    <div id="mechanistic-fields"><div class="field-grid" id="air-fields"></div><label class="field-label" for="riskModel">Exposure calculation</label><select id="riskModel" name="riskModel"><option value="lowDose">Low-dose, steady-state approximation</option><option value="exact">Steady-state exponential dose response</option></select><div id="dose-fields" hidden></div></div>
+    <div class="field-grid" id="burden-fields"></div><div id="empirical-fields" hidden></div>
+    <details class="inset"><summary>What counts as a matched study?</summary><p>Match population, intervention, comparator, endpoint and follow-up. For recurrent infections, use an episode-rate ratio; for absence, a ratio of expected days. A risk of any infection or an odds ratio cannot automatically be applied to episode counts. An absence effect cannot be turned into infections. The airflow and addressable-fraction controls do not modify a matched total effect.</p><a href="#evidence">Review the evidence notes ↗</a></details>
+   </section>
+   <section class="input-card"><div class="card-heading"><span class="step">3</span><div><h3>Put costs and outcomes in context</h3><p>Annual service costing, in one consistent monetary unit.</p></div></div><div class="field-grid" id="cost-fields"></div>
+    <details class="inset"><summary>Outcome values &amp; optional learning</summary>
+     <p>All starting values below are placeholders. Use local resource costs, avoid overlapping valuations, and include zero-benefit scenarios.</p>
+     <div id="infection-values"><div class="field-grid" id="illness-fields"></div><label class="check"><input type="checkbox" id="valueHealth" name="valueHealth"><span>Include an explicit monetary value of health</span></label><div class="field-grid" id="health-fields"></div><p class="hint">QALYs are reported separately. A monetary health valuation is not automatically a health-system cost-effectiveness threshold.</p></div>
+     <div id="absence-values" hidden></div>
+     <div class="learning-option"><span class="tag assumption">SCENARIO ONLY</span><h4>Lasting achievement</h4><p>Explore a terminal achievement difference for this cohort, counted once at the end of the horizon. No CO₂-to-learning conversion is applied.</p><label class="check"><input type="checkbox" id="includeLearning" name="includeLearning"><span>Include a user-specified terminal learning gain</span></label><div class="field-grid" id="learning-fields"></div><p class="hint">The valuation is the present value of subsequent earnings <strong>at the terminal year</strong>. The calculator discounts it to today once. It is not an identified causal return for clean air.</p></div>
+    </details>
+   </section>
+  </form>
+  <div class="results-column" id="results">
+   <div id="validation" class="validation" role="alert" hidden></div>
+   <div id="result-content">
+    <section class="result-hero" aria-labelledby="result-heading"><div class="hero-top"><span class="eyebrow" id="result-heading">YOUR SCENARIO AT A GLANCE</span><span class="model-pill">Illustrative</span></div><p class="result-label">Net present value <span id="horizon-label"></span></p><div class="result-number" id="net-result">—</div><div class="result-verdict" id="verdict"></div><p id="interpretation"></p><div class="hero-metrics"><div><span>Value of included outcomes</span><strong id="benefit-result">—</strong></div><div><span>Intervention cost</span><strong id="cost-result">—</strong></div></div><p class="included-scope" id="included-scope"></p><div class="result-foot"><span id="bcr-result"></span><span>Compared with no added intervention</span></div></section>
+    <section class="result-card"><div class="result-card-head"><h3>What would make it break even?</h3><span aria-hidden="true">↗</span></div><div class="thresholds"><div><span id="effect-threshold-label">Infection reduction needed</span><strong id="effect-threshold">—</strong><p id="effect-explanation"></p></div><div><span>Total terminal learning gain needed</span><strong id="learning-threshold">—</strong><p id="learning-explanation"></p></div></div><p class="hint">These are alternative thresholds, not two benefits to add. The learning threshold holds non-learning assumptions fixed.</p></section>
+    <section class="result-card"><div class="result-card-head"><h3>Follow the outcomes</h3><span class="tag">UNDISCOUNTED</span></div><div class="physical-grid"><div><strong id="physical-result">—</strong><span id="physical-label"></span></div><div><strong id="days-result">—</strong><span>absent days averted</span></div><div><strong id="qaly-result">—</strong><span>QALYs gained</span></div></div><p class="hint" id="physical-note"></p><div class="breakdown" id="breakdown"></div><details class="inset"><summary>Year-by-year calculation</summary><div class="table-scroll"><table><caption>Year-end present values; physical outcomes are undiscounted.</caption><thead><tr><th scope="col">Year</th><th scope="col">Outcome change</th><th scope="col">Value (MU)</th><th scope="col">Cost (MU)</th></tr></thead><tbody id="annual-table"></tbody></table></div></details></section>
+    <div class="action-row"><button id="save-scenario" class="primary">+ Save for comparison</button><button id="copy-link">Copy scenario link</button><details class="export-menu"><summary>Export</summary><button id="export-json">Download JSON</button><button id="export-csv">Download CSV</button><button id="print">Print summary</button></details></div><p id="action-status" class="hint" role="status"></p>
+   </div>
   </div>
-  <div class="symkey" id="symkey"></div>
-  <div class="def" id="symdef" hidden></div>
-  <p class="note">The population-weighted secondary sum &Sigma;<sub>k</sub>&psi;<sub>k</sub>(w<sub>k</sub>a<sub>k</sub>+c<sub>k</sub>+u<sub>k</sub>&lambda;) is collapsed here into one weighted secondary-case cost &psi;<sub>w</sub>; adherence &eta; is folded into the single delivered-clean-air slider (&eta;&middot;&Delta;q); E<sub>om</sub> is annual energy + maintenance.</p>
-
-  <h2>How the model fits together</h2>
-  <p>The diagram below is the same model as a picture. Reading left to right: an intervention raises the supply of clean air, which <b>reduces transmission</b> and <b>averts infections</b>; that value splits into the <b>direct-to-child component</b> (the child&#8217;s own averted illness plus durable learning) and the optional <b>secondary component</b> (onward cases avoided in caregivers and the wider community). A separate <b>cognitive path</b> (green, dashed) bypasses transmission entirely: by lowering CO&#8322;, ventilation and outdoor classrooms lift learning whether or not a child would have fallen ill, which is why it switches off for HEPA and germicidal UV. Everything is added up and the intervention&#8217;s cost is subtracted to give the net social benefit; the node colours match the value bars in the calculator.</p>
-  <svg id="diagram" viewBox="0 0 760 300" width="100%" role="img" aria-label="Influence diagram: the intervention reduces transmission and averts infections, whose value flows to direct-to-child and secondary components and nets against cost; a cognitive path bypasses transmission and is active only for CO2-lowering interventions.">
-    <defs>
-      <marker id="ah" markerWidth="8" markerHeight="8" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="var(--c-cost)"/></marker>
-      <marker id="ahg" markerWidth="8" markerHeight="8" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="var(--c-cog)"/></marker>
-    </defs>
-    <path class="flow" d="M104,150 L124,150" marker-end="url(#ah)"/>
-    <path class="flow" d="M218,150 L238,150" marker-end="url(#ah)"/>
-    <path class="flow" d="M344,147 L440,150" marker-end="url(#ah)"/>
-    <path class="flow" d="M344,156 L440,238" marker-end="url(#ah)"/>
-    <path class="flow" d="M612,110 L646,146" marker-end="url(#ah)"/>
-    <path class="flow" d="M598,242 L646,166" marker-end="url(#ah)"/>
-    <path class="flow" d="M171,258 C 320,294 470,292 598,290 C 655,288 699,245 700,184" marker-end="url(#ah)"/>
-    <text class="nsub" x="380" y="284" text-anchor="middle" font-weight="600">&minus; cost</text>
-    <rect class="box" x="430" y="22" width="182" height="178" rx="9" fill="none" stroke="var(--c-group)" stroke-dasharray="4 3"/>
-    <text class="nsub" x="521" y="16" text-anchor="middle" fill="var(--c-group)">Direct-to-child component</text>
-    <g class="node" data-link="theta"><rect class="box" x="8" y="127" width="96" height="46" rx="7" stroke="var(--c-cost)"/><text class="nlab" x="56" y="146" text-anchor="middle">Intervention</text><text class="nsub" x="56" y="162" text-anchor="middle">adds &Delta;q</text></g>
-    <g class="node" data-link="theta"><rect class="box" x="124" y="127" width="94" height="46" rx="7" stroke="var(--c-cost)"/><text class="nlab" x="171" y="146" text-anchor="middle">Transmission</text><text class="nsub" x="171" y="162" text-anchor="middle">reduction &theta;</text></g>
-    <g class="node" data-link="avert"><rect class="box" x="238" y="127" width="106" height="46" rx="7" stroke="var(--c-cost)"/><text class="nlab" x="291" y="146" text-anchor="middle">Averted</text><text class="nsub" x="291" y="162" text-anchor="middle">infections</text></g>
-    <g class="node" data-link="illness"><rect class="box" x="442" y="124" width="156" height="56" rx="7" stroke="var(--c-illness)"/><text class="nlab" x="520" y="147" text-anchor="middle">Averted illness</text><text class="nsub" x="520" y="164" text-anchor="middle">health + attendance</text></g>
-    <g class="node" data-link="second"><rect class="box" x="442" y="214" width="156" height="54" rx="7" stroke="var(--c-sec)"/><text class="nlab" x="520" y="236" text-anchor="middle">Secondary</text><text class="nsub" x="520" y="253" text-anchor="middle">caregivers + community</text></g>
-    <g class="node" data-link="nsb"><rect class="box" x="646" y="122" width="106" height="58" rx="7" stroke="var(--accent)"/><text class="nlab" x="699" y="146" text-anchor="middle">Net social</text><text class="nlab" x="699" y="162" text-anchor="middle">benefit</text></g>
-    <g class="node" data-link="cost"><rect class="box" x="124" y="216" width="94" height="42" rx="7" stroke="var(--c-cost)"/><text class="nlab" x="171" y="241" text-anchor="middle">Cost</text></g>
-    <g id="cogPath" class="node" data-link="cog">
-      <path d="M56,127 C 56,48 250,48 440,62" stroke="var(--c-cog)" stroke-width="1.6" fill="none" stroke-dasharray="5 3" marker-end="url(#ahg)"/>
-      <text class="nsub" x="250" y="44" text-anchor="middle" fill="var(--c-cog)" font-style="italic">bypasses &theta;</text>
-      <rect class="box" x="442" y="34" width="156" height="56" rx="7" stroke="var(--c-cog)"/>
-      <text class="nlab" x="520" y="57" text-anchor="middle">Cognitive gain</text>
-      <text class="nsub" x="520" y="74" text-anchor="middle">vent / outdoor only</text>
-    </g>
-    <text id="cogNote" class="nsub" x="442" y="106" fill="var(--c-cost)" font-style="italic" font-size="11"></text>
-  </svg>
-  <p class="note" style="margin-top:-2px;">Tip: click a symbol in the model key above, or a parameter name in the calculator, to pulse the matching box here.</p>
-
-  <h2>The calculator</h2>
-  <p>Set the inputs to match your situation; the result updates on the right. Every parameter opens at a <b>default</b> value, and you can see exactly where each one comes from: <b>click any parameter name</b> to reveal its definition, its baseline value, the source it is drawn from, and how a study would pin it down. Physical and epidemiological defaults come from the literature reviewed in the manuscript; dollar values are calibrated to New Zealand (the value of a QALY, lifetime earnings per test-score gain, NZ wages and healthcare costs); and the four <b>critical unknowns</b> sit at deliberately cautious central guesses.</p>
-
-  <div class="presets" id="presets">
-    <button type="button" data-preset="hepa">HEPA filtration</button>
-    <button type="button" data-preset="mech">Mechanical ventilation</button>
-    <button type="button" data-preset="natural">Natural ventilation</button>
-    <button type="button" data-preset="outdoor">Outdoor classroom</button>
-  </div>
-  <div class="intvdefs">
-    <div data-intv="hepa"><b>HEPA filtration</b> &mdash; a portable air cleaner that pulls room air through a high-efficiency filter, trapping virus-laden particles and returning cleaned air to the room. It raises the supply of pathogen-free air without bringing in any outside air, so it does <b>not</b> lower CO&#8322;. Low capital, recurring filters and electricity; works in any weather.</div>
-    <div data-intv="mech"><b>Mechanical ventilation</b> &mdash; a powered system (HVAC) that supplies filtered outdoor air and extracts stale indoor air. It both removes pathogens <b>and</b> lowers CO&#8322;, so it carries the learning benefit. High capital cost and an energy penalty, but reliable and continuous.</div>
-    <div data-intv="natural"><b>Natural ventilation</b> &mdash; simply letting outdoor air in through open windows, doors or vents, with no fans &mdash; the cheapest option. It lowers CO&#8322; and dilutes airborne virus, but its effect depends on the weather and on windows actually being open, so it is intermittent.</div>
-    <div data-intv="outdoor"><b>Outdoor classroom</b> &mdash; moving teaching outdoors or into an open-sided space, where effectively unlimited fresh air pushes transmission risk close to zero and CO&#8322; is negligible. Near-zero cost, but only feasible part of the time (weather, season, curriculum), captured by the feasibility discount &delta;.</div>
-  </div>
-  <p class="note" style="margin-top:-2px;margin-bottom:1rem;">No measurements of your own? <b>Start from a preset and adjust.</b> Click any parameter for its definition, baseline value, sources, and how a study would sharpen it.</p>
-
-  <div class="layout">
-    <div id="inputs">
-      <h3>Your classroom (measured)</h3><div id="grp-a"></div>
-      <h3>Critical unknowns (important but not yet measured)</h3><div id="grp-b"></div>
-      <h3>Setting and cost</h3><div id="grp-c"></div>
-      <details><summary>Advanced parameters (disease burden, value of illness, cognition)</summary><div id="grp-d" style="margin:8px 0 4px;"></div></details>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem;">
-        <button type="button" id="copy-link"><span id="copy-label">Copy shareable link</span></button>
-        <button type="button" id="reset">Reset to defaults</button>
-        <button type="button" id="exp-json">Export JSON</button>
-        <button type="button" id="exp-csv">Export CSV</button>
-      </div>
-    </div>
-
-    <div id="outputs">
-      <div class="hero">
-        <div class="cur">Net social benefit (NZD / classroom-year)</div>
-        <div class="nsb" id="o-nsb">&mdash;</div>
-        <div class="row"><span class="badge" id="o-verdict">&mdash;</span><span class="bcr">benefit-cost ratio <b id="o-bcr">&mdash;</b></span></div>
-        <div class="say" id="o-say">&mdash;</div>
-      </div>
-
-      <div class="panel outpanel">
-        <div class="rowline"><span>Annual intervention cost C<sub>j</sub></span><b id="o-cj">&mdash;</b></div>
-        <div class="rowline"><span>Delivered transmission reduction &theta;</span><b id="o-theta">&mdash;</b></div>
-        <div class="rowline"><span>Averted infections per classroom-year</span><b id="o-di">&mdash;</b></div>
-        <div class="rowline"><span>Durable cognitive gain g (worth g&middot;&rho;<sub>SD</sub>)</span><b id="o-g">&mdash;</b></div>
-        <div class="rowline" style="align-items:center;"><span>Break-even vs your &theta;</span><span id="o-thrchip"></span></div>
-        <div class="note" id="o-thr" style="margin-top:2px;"></div>
-      </div>
-
-      <div class="panel outpanel">
-        <div style="font-size:13px;color:var(--text2);margin-bottom:4px;">How the value adds up (NZD / classroom-year)</div>
-        <svg id="waterfall" viewBox="0 0 460 200" width="100%" role="img" aria-label="Waterfall of benefit components minus cost equals net social benefit."></svg>
-        <div class="legend">
-          <span><span class="sw" style="background:var(--c-illness)"></span>Averted illness</span>
-          <span><span class="sw" style="background:var(--c-cog)"></span>Cognitive</span>
-          <span><span class="sw" style="background:var(--c-sec)"></span>Secondary</span>
-          <span><span class="sw" style="background:var(--c-cost)"></span>Cost</span>
-        </div>
-      </div>
-
-      <div class="panel outpanel">
-        <div style="font-size:13px;color:var(--text2);margin-bottom:2px;">Uncertainty in net social benefit</div>
-        <div class="uband" id="o-uband"></div>
-        <div class="rowline" style="margin-top:2px;"><span>90% range [5th, 95th] &middot; median</span><b id="o-urange">&mdash;</b></div>
-        <div class="note">Deterministic-range sensitivity: 4,000 independent uniform draws over the four critical unknowns (&kappa; 0.10&ndash;0.40, &sigma; 0.20&ndash;0.90, &pi; 0.01&ndash;0.60, &rho;<sub>c</sub> 0.10&ndash;0.50). Not a calibrated probabilistic analysis.</div>
-      </div>
-
-      <div class="panel outpanel">
-        <div style="font-size:13px;color:var(--text2);margin-bottom:4px;">Compare all four (your shared parameters)</div>
-        <table class="cmp" id="o-compare"></table>
-      </div>
-
-      <div class="panel outpanel">
-        <div style="font-size:13px;color:var(--text2);margin-bottom:4px;">What drives the result (one-at-a-time swing in NSB)</div>
-        <div id="o-tornado"></div>
-      </div>
-    </div>
-  </div>
-
-  <h2>What evidence would sharpen this model?</h2>
-  <div id="agenda" style="font-size:14px;"></div>
-
-  <h2>Limitations &mdash; what the model does not capture</h2>
-  <p style="font-size:14px;">A short, deliberately honest list of what is left out, and which way each omission is likely to push the benefit-cost ratio (BCR).</p>
-  <div style="font-size:14px;">
-    <h3>Omissions that likely <span style="color:var(--no-tx)">understate</span> the BCR (true value higher)</h3>
-    <ul>
-      <li><b>Teacher and staff health.</b> The model counts children and downstream household/community cases, but not averted infections, absence, or productivity loss among teachers and support staff who share the same air.</li>
-      <li><b>Non-respiratory and chronic effects.</b> Cleaner air also reduces asthma exacerbations, allergy symptoms, and absence from sources other than acute respiratory infection; and CO&#8322;/pollutant exposure may have effects beyond the modelled test-score channel.</li>
-      <li><b>Equity weighting.</b> Benefits are unweighted. Disadvantaged children often have the highest baseline burden and the worst-ventilated buildings, so an equity-weighted social evaluation would typically raise the return on prioritising them.</li>
-      <li><b>Option and resilience value.</b> Installed clean-air capacity has value in a future pandemic or wildfire-smoke event that a steady-state endemic model ignores.</li>
-      <li><b>Co-benefits of ventilation.</b> Thermal comfort, odour, and general wellbeing/alertness effects are not valued.</li>
-    </ul>
-    <h3>Omissions that may <span style="color:var(--ok-tx)">overstate</span> the BCR (true value lower)</h3>
-    <ul>
-      <li><b>Cognitive persistence (&pi;) and fade-out.</b> The cognitive term values durable learning, but lower CO&#8322; may mostly improve same-session performance rather than build lasting skill. We use a conservative central &pi; = 0.10 &mdash; below the ~25% durable residual seen for teacher-induced learning (Chetty, Friedman &amp; Rockoff 2014), because IAQ effects are plausibly transient (Bailey et al. 2017) &mdash; yet there is no direct IAQ estimate. If the durable fraction is near zero, the dominant cognitive term largely vanishes; and because &rho;_SD uses the full cross-sectional test&ndash;earnings gradient, the cognitive value is an upper bound on two counts. This remains the single biggest source of optimism.</li>
-      <li><b>Attribution upper bounds.</b> &kappa; comes from school-closure evidence (an upper bound on school-acquired infection) and &sigma; is unestimated; if the treated rooms address less transmission than assumed, infection benefits fall.</li>
-      <li><b>Adherence and real-world operation.</b> Devices switched off, windows closed, filters unmaintained, or lamps degraded all reduce delivered clean air below the rated figure entered here.</li>
-      <li><b>Behavioural offsetting.</b> Perceived protection could change mixing or hygiene behaviour, partially offsetting gains (not modelled).</li>
-      <li><b>Double-counting risks at the margins.</b> The downstream multiplier M is bounded to exclude school-acquired and within-room cases, but in practice these boundaries are hard to measure cleanly.</li>
-    </ul>
-    <h3>Structural simplifications (direction ambiguous)</h3>
-    <ul>
-      <li><b>Single representative classroom, endemic steady state.</b> No dynamic transmission, no network/general-equilibrium effects, no economies or diseconomies of scale across a whole school or system.</li>
-      <li><b>Concave (Wells&ndash;Riley-style) risk reduction.</b> &theta; is exact only in the linear regime; for high per-exposure risk the true reduction is smaller.</li>
-      <li><b>Collapsed secondary mix.</b> The recipient-type sum is reduced to one weighted secondary-case cost &psi;<sub>w</sub>; the real mix of working-age adults, siblings and older adults carries different productivity and mortality profiles.</li>
-      <li><b>Jurisdiction transfer.</b> Dollar values are approximate NZD; human-capital and QALY figures are especially sensitive to the chosen jurisdiction.</li>
-    </ul>
-  </div>
-
-  <div class="flag" style="border-left-color:var(--accent2);">
-    <b>Using these results responsibly.</b> This is a transparent what-if built on illustrative parameters, several of them unmeasured. Use it to explore which assumptions matter and to frame an evidence agenda &mdash; not to quote a specific benefit-cost ratio as an established estimate. The headline figure for cheap, CO&#8322;-lowering measures is dominated by the uncertain cognitive channel and should be read as &ldquo;potentially large but unproven&rdquo;.
-  </div>
-
-  <h2>References</h2>
-  <p class="note" style="margin-bottom:.4rem;">Key sources behind the calculator's parameters and persistence assumptions (full bibliographic details are in the manuscript).</p>
-  <ol style="font-size:13px;color:var(--text2);line-height:1.5;padding-left:20px;">
-    <li>Bailey DH, Duncan GJ, Odgers CL, Yu W (2017). Persistence and fadeout in the impacts of child and adolescent interventions. <i>Journal of Research on Educational Effectiveness</i>. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5779101/">link</a></li>
-    <li>Bailey DH, Duncan GJ, Cunha F, Foorman BR, Yeager DS (2020). Persistence and fade-out of educational-intervention effects. <i>Psychological Science in the Public Interest</i>. <a href="https://edre.uark.edu/_resources/pdf/Bailey_PSPI_2020.pdf">link</a></li>
-    <li>Kraft MA (2020). Interpreting effect sizes of education interventions. <i>Educational Researcher</i>.</li>
-    <li>Jacob BA, Lefgren L, Sims DP (2010). The persistence of teacher-induced learning gains. NBER Working Paper 14442. <a href="https://www.nber.org/papers/w14442">link</a></li>
-    <li>Chetty R, Friedman JN, Hilger N, Saez E, Schanzenbach DW, Yagan D (2011). How does your kindergarten classroom affect your earnings? Evidence from Project STAR. <i>Quarterly Journal of Economics</i> 126(4). <a href="https://www.nber.org/papers/w16381">link</a></li>
-    <li>Chetty R, Friedman JN, Rockoff JE (2014). Measuring the impacts of teachers II: teacher value-added and student outcomes in adulthood. <i>American Economic Review</i> 104(9). <a href="https://opportunityinsights.org/paper/teachers/">link</a></li>
-    <li>Wargocki P, Wyon DP, et al. Effects of classroom air quality (CO&#8322; / ventilation) on children's schoolwork performance.</li>
-    <li>Haverinen-Shaughnessy U, Moschandreas DJ, Shaughnessy RJ (2011). Association between ventilation rates and academic achievement. <i>Indoor Air</i>.</li>
-    <li>Gilraine M (2023). Air filters, pollution, and student achievement.</li>
-    <li>Stafford TM (2015). Indoor air quality and academic performance. <i>Journal of Environmental Economics &amp; Management</i> 70.</li>
-    <li>Mendell MJ, et al. (2013). Association of classroom ventilation with reduced illness absence. <i>Indoor Air</i>.</li>
-    <li>Rudnick SN, Milton DK (2003). Risk of indoor airborne infection transmission estimated from carbon dioxide concentration. <i>Indoor Air</i>.</li>
-    <li>Peng Z, Jimenez JL (2021). Exhaled CO&#8322; as a COVID-19 infection-risk proxy. <i>Environmental Science &amp; Technology Letters</i>.</li>
-    <li>Lloyd-Smith JO, Schreiber SJ, Kopp PE, Getz WM (2005). Superspreading and the effect of individual variation on disease emergence. <i>Nature</i> 438.</li>
-    <li>Honan G, et al. Systematic review of indoor environmental quality and ventilation in classrooms.</li>
-    <li>SINPHONIE project. Schools Indoor Pollution and Health: Observatory Network in Europe.</li>
-    <li>Bennett J, et al. Classroom ventilation and CO&#8322; in a New Zealand (Wellington) school.</li>
-    <li>Cauchemez S, et al. Estimating the impact of school closure on influenza transmission.</li>
-    <li>Litvinova M, et al. Reactive school closure and respiratory transmission.</li>
-    <li>Eames KTD, et al. School contacts and influenza transmission.</li>
-    <li>Forbes HJ, et al. Household and school secondary attack rates.</li>
-    <li>Flasche S, Edmunds WJ. The role of children in household transmission.</li>
-    <li>Ayd&#305;n et al. Incidence of infectious episodes in young children.</li>
-    <li>Wheeler et al. School days missed from medically attended respiratory illness.</li>
-    <li>GBD 2021. Global Burden of Disease: lower-respiratory infections.</li>
-    <li>PHARMAC. Health economic analysis (Aotearoa New Zealand). <a href="https://www.pharmac.govt.nz/medicines/how-medicines-are-funded/economic-analysis/pfpa/2-health-economic-analysis-at-pharmac">link</a></li>
-    <li>Stats NZ (2024). Labour market statistics (income): June 2024 quarter. <a href="https://www.stats.govt.nz/information-releases/labour-market-statistics-income-june-2024-quarter/">link</a></li>
-  </ol>
-
-  <footer>
-    <p><b>Author:</b> Austin Henderson, Department of Economics, University of Otago. <b>Model:</b> CASCADE (Henderson et&nbsp;al., in preparation). <b>Version:</b> 0.6 (2026-06-19). Equations match the manuscript and its verification script.</p>
-    <p><b>Cite this tool:</b></p>
-    <code class="cite" id="cite">Henderson, A. (2026). CASCADE clean-air-in-schools calculator (v0.6) [interactive tool]. https://austinhendersoneconomist.github.io/cascade-calculator/</code>
-    <button type="button" id="copy-cite" style="font-size:13px;">Copy citation</button>
-    <p style="margin-top:10px;">Source &amp; issues: <a href="https://github.com/AustinHendersonEconomist/cascade-calculator">github.com/AustinHendersonEconomist/cascade-calculator</a>. Dollar figures are illustrative NZD; to read in USD, multiply by roughly 0.6.</p>
-  </footer>
+ </div>
+</section>
+<section class="exploration-section" aria-labelledby="sensitivity-heading"><div class="section-top"><div><span class="eyebrow">TEST THE ASSUMPTION</span><h2 id="sensitivity-heading">How much does the answer depend on it?</h2></div><div class="chart-select"><label for="sensitivity">Vary one assumption</label><select id="sensitivity"><option value="addressable">Addressable infection fraction</option><option value="capital">Capital cost</option><option value="terminalGain">Terminal learning gain</option></select></div></div><div class="sensitivity-grid"><div class="chart-card"><div id="sensitivity-chart"></div><p id="sensitivity-description" class="hint"></p></div><div class="sensitivity-note"><span class="tag assumption">SENSITIVITY, NOT PROBABILITY</span><h3>Change the assumption.<br>Keep the question.</h3><p>This curve varies one input while holding the others fixed. Its endpoints are exploration bounds, not confidence limits.</p><p id="sensitivity-note"></p></div></div></section>
+<section id="comparison" class="comparison-section"><div class="section-top"><div><span class="eyebrow">COMPARE ALTERNATIVES</span><h2>Keep the same decision in view.</h2></div><button id="clear-comparison" class="quiet">Clear saved scenarios</button></div><p class="section-description">Save up to six alternatives for this session. Different populations, horizons, baselines or valuation assumptions are flagged as not directly comparable. No action remains the reference.</p><div class="table-scroll comparison-table"><table><caption class="sr-only">Saved alternatives compared with no added intervention</caption><thead><tr><th scope="col">Scenario</th><th scope="col">Cost, PV</th><th scope="col">Outcome value, PV</th><th scope="col">Net value, PV</th><th scope="col">Comparison</th></tr></thead><tbody id="comparison-table"></tbody></table></div><p class="hint">Compare incremental net values, not benefit–cost ratio rankings. Saved alternatives are not a combined intervention package.</p></section>
+<section id="evidence" class="evidence-section"><div class="section-top"><div><span class="eyebrow">02 / EVIDENCE</span><h2>What the studies can tell us.</h2></div><span class="tag">AI-ASSISTED REVIEW · HUMAN VERIFICATION PENDING</span></div><p class="section-description">A targeted review of 16 reports informs these interpretation rules. It is not a completed systematic review, and linked reports are not independent trials.</p><div class="evidence-grid">
+ <article class="evidence-card"><span class="evidence-index">01</span><span class="tag">ENVIRONMENT</span><h3>Cleaner air is a measurable outcome.</h3><p>Simona reports incremental particle reduction with portable filtration. FRESH shows why achieved ventilation conditions matter more than nominal targets.</p><p class="evidence-rule">Particle or CO₂ reduction alone does not identify a health or learning effect.</p><a href="https://doi.org/10.1038/s41370-025-00743-9" target="_blank" rel="noopener">Simona et al. ↗</a> <a href="https://doi.org/10.1186/1476-069x-12-110" target="_blank" rel="noopener">FRESH ↗</a></article>
+ <article class="evidence-card"><span class="evidence-index">02</span><span class="tag">HEALTH &amp; ABSENCE</span><h3>Keep the endpoint intact.</h3><p>SICAS reports uncertain asthma symptom and asthma-absence effects. Mendell’s ventilation association concerns illness absence. Banholzer’s respiratory result is exploratory and model-dependent.</p><p class="evidence-rule">Asthma, absent days, detected viruses and incident infections are different outcomes.</p><a href="https://doi.org/10.1001/jama.2021.11559" target="_blank" rel="noopener">SICAS ↗</a> <a href="https://doi.org/10.1111/ina.12042" target="_blank" rel="noopener">Mendell ↗</a> <a href="https://doi.org/10.1093/ofid/ofae169" target="_blank" rel="noopener">Banholzer ↗</a></article>
+ <article class="evidence-card"><span class="evidence-index">03</span><span class="tag">LEARNING</span><h3>Attention is not lifetime achievement.</h3><p>ATENC!Ó’s acute attention estimate is uncertain. Gilraine’s final paper and Wang’s school-and-home trial report achievement effects, but do not establish a transferable durable gain per ppm.</p><p class="evidence-rule">Use a terminal learning threshold. Any assumed gain needs its own duration and valuation.</p><a href="https://doi.org/10.1016/j.envint.2021.106614" target="_blank" rel="noopener">ATENC!Ó ↗</a> <a href="https://doi.org/10.3368/jhr.0421-11642R2" target="_blank" rel="noopener">Gilraine ↗</a> <a href="https://doi.org/10.1016/j.xinn.2026.101304" target="_blank" rel="noopener">Wang ↗</a></article>
+</div><details class="evidence-detail"><summary>What the evidence does—and does not—support</summary><div class="table-scroll"><table><thead><tr><th>Input or claim</th><th>How the calculator uses it</th><th>Basis</th></tr></thead><tbody>
+<tr><td>CO₂ → annual score SD</td><td>No automatic cognitive gain is assigned to a technology.</td><td><a href="https://doi.org/10.1016/j.buildenv.2020.106749">Wargocki</a> synthesises heterogeneous task outcomes. <a href="https://doi.org/10.1111/j.1600-0668.2010.00686.x">Haverinen-Shaughnessy</a> reports selected-range pass-rate associations.</td></tr>
+<tr><td>Persistence and earnings per SD</td><td>Zero applied learning by default; optional terminal gain and explicit hypothetical valuation.</td><td><a href="https://doi.org/10.1093/qje/qjr041">Chetty’s classroom-quality estimate</a> is not a transferable causal earnings return per score SD. <a href="https://doi.org/10.1177/2332858420928985">Watts</a> is explicitly associational.</td></tr>
+<tr><td>Share of infection burden addressed</td><td>One visible, uncalibrated addressable fraction. Zero is allowed.</td><td>School-closure evidence does not identify a general school-acquisition fraction or its upper bound.</td></tr>
+<tr><td>Onward transmission</td><td>Excluded from this calculator.</td><td>No identified finite population, generations or non-overlap model; household attack rates cannot calibrate it.</td></tr>
+<tr><td>Illness burden, healthcare, caregiver time, QALYs</td><td>Explicit placeholders; replace with compatible local estimates.</td><td>Physiological changes in <a href="https://doi.org/10.1001/jamapediatrics.2024.5049">Lei</a> and <a href="https://doi.org/10.1021/acs.est.1c03146">Yang</a> do not directly calibrate clinical episodes or QALYs.</td></tr>
+<tr><td>Short-task positive findings</td><td>No annual learning conversion.</td><td><a href="https://doi.org/10.1111/ina.12210">Petersen</a> and <a href="https://doi.org/10.1111/j.1600-0668.2012.00774.x">Twardella</a> require attention to exclusions. <a href="https://doi.org/10.1016/j.envres.2026.124796">Jeong</a> has only 27 cognitive participants and no concurrent sham arm.</td></tr>
+<tr><td>Generic 74% infection reduction</td><td>No default imported from this estimate.</td><td><a href="https://doi.org/10.3389/fpubh.2022.1087087">Buonanno</a> concerns observational COVID-specific classroom clusters; the preferred RR has no reported CI.</td></tr>
+</tbody></table></div></details></section>
+<section id="method" class="method-section"><div><span class="eyebrow">03 / HOW IT WORKS</span><h2>Every result has<br>a traceable path.</h2><p>One stable cohort. One matched endpoint. A stated horizon. Costs and valued outcomes discounted to the same date.</p><a href="research.html">Read the research framework ↗</a></div><div class="method-steps"><article><span>01</span><div><h3>Estimate the physical change</h3><p>Airflow route: episodes × addressable fraction × hypothetical risk reduction. Study route: the matched baseline endpoint × (1 − RR). These routes are alternatives.</p></div></article><article><span>02</span><div><h3>Value only the outcomes included</h3><p>Separate healthcare, caregiver time and optional health valuation. Report days and QALYs without implying that they are observed. Count an optional terminal achievement difference once.</p></div></article><article><span>03</span><div><h3>Compare at a common date</h3><p>Annual service cost = capital × capital-recovery factor + annual operations. Discount year-end flows across the horizon. Net present value = valued outcomes − costs.</p></div></article></div></section>
+<details class="limits"><summary>Scope, equations and exclusions</summary><p>Q₀ = 3.6 × occupants × baseline L/s/person. Low-dose reduction = 1 − Q₀/(Q₀ + added flow). The optional exponential calculation uses P = 1 − exp(−dose) with dose scaled by that flow ratio. Both assume constant, well-mixed, steady-state exposure, not intermittent operation or near-field transmission. Enter effective delivered flow under those conditions, not a duty-cycle-adjusted rating.</p><p>Capital recovery = r/[1 − (1+r)<sup>−L</sup>], with 1/L at r=0. Annual service costing is a service-equivalent comparison; it does not represent the upfront purchase budget or automatically assume zero salvage after a shorter horizon. Annual outcomes and burdens are held constant for the same cohort.</p><p>This tool excludes onward transmission, automatic attendance-to-earnings benefits, fiscal funding transfers, and unvalued noise, thermal, chronic-health or other effects. Their omission does not make the result a lower bound. Matched-study effects need justification before repeating them over this horizon. A positive net value under chosen inputs is not a finding that an intervention is cost-beneficial in practice.</p></details>
 </main>
-
-<div class="tourwrap" id="tourwrap"></div>
-<div class="spot" id="spot" style="display:none;"></div>
-<div class="tourbox" id="tourbox" style="display:none;"></div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
-<script>
-(function(){
-"use strict";
-var CUR='NZD ';
-var SPEC={
-  a:[['Q0','Baseline clean air Q&#8320; (L/s per person)',1,10,0.5,4,2],['dq','Delivered clean-air gain &eta;&middot;&Delta;q (L/s per person)',0,15,0.5,5.4,2],['dco2','CO&#8322; reduction (ppm)',0,1000,50,0,0],['delta','Feasibility discount &delta;',0.1,1,0.05,1,2]],
-  b:[['kappa','School-attributable fraction &kappa;',0.05,0.5,0.01,0.30,2],['sigma','Treated-setting fraction &sigma;',0.10,1,0.05,0.50,2],['pi','Learning-persistence factor &pi;',0,0.6,0.01,0.10,2],['rhoc','Per-case onward reproduction &rho;_c (&rarr; M)',0,0.5,0.01,0.30,2]],
-  c:[['n','Classroom size n',18,35,1,25,0],['K','Up-front capital K (NZD)',0,60000,100,900,0],['L','Service life L (years)',1,30,1,5,0],['r','Discount rate r',0.01,0.08,0.005,0.03,3],['EM','Annual energy + maintenance (NZD/yr)',0,2000,10,250,0],['rhosd','Lifetime earnings per 1 SD gain &rho;_SD (NZD)',100000,350000,5000,200000,0]],
-  d:[['m','Annual infection burden m',2,8,0.5,4,1],['phi','Airborne fraction &phi;',0.1,0.8,0.05,0.5,2],['beta','CO&#8322; dose-response &beta; (SD/ppm)',0.00005,0.001,0.00005,0.0003,5],['p_med','P(medically attended)',0.05,0.4,0.01,0.20,2],['c_ch','Child healthcare cost (NZD)',0,500,10,70,0],['u_ch','QALY loss per child episode',0.001,0.01,0.001,0.002,3],['lambda','QALY value &lambda; (NZD/QALY)',20000,60000,1000,45000,0],['abar','School days lost per episode',0,5,0.5,2,1],['rho_day','Value of a preserved school day (NZD)',0,400,10,100,0],['c_sup','Caregiver supervision cost (NZD)',0,600,10,220,0],['psi_w','Weighted secondary-case cost (NZD)',0,2000,20,700,0]]
-};
-var LINK={Q0:'theta',dq:'theta',dco2:'cog',delta:'nsb',kappa:'avert',sigma:'avert',pi:'cog',rhoc:'second',n:'nsb',K:'cost',L:'cost',r:'cost',EM:'cost',rhosd:'cog',m:'avert',phi:'avert',beta:'cog',p_med:'illness',c_ch:'illness',u_ch:'illness',lambda:'illness',abar:'illness',rho_day:'illness',c_sup:'second',psi_w:'second'};
-var DEFS={
-  Q0:{def:'Baseline pathogen-free-air delivery before the intervention. Risk reduction is concave, so a given gain helps more in a poorly ventilated room.',src:'Classrooms are typically 3&ndash;5 L/s/person and often below standard (Honan et al.; SINPHONIE; Bennett et al.).',improve:'Direct CO&#8322; / air-change monitoring of the target rooms.'},
-  dq:{def:'Rated clean-air added (&Delta;q) times adherence &eta; (fraction of occupied time it runs at capacity).',src:'HEPA &asymp;4&ndash;8, mechanical ventilation &asymp;5&ndash;10 L/s/person; &eta; &asymp;0.85&ndash;0.95 for devices, 0.30&ndash;0.65 natural.',improve:'Commission on CADR / air-change tests and log actual runtime.'},
-  dco2:{def:'Achieved drop in indoor CO&#8322;. Only ventilation and outdoor air lower CO&#8322;, which drives the cognitive channel; HEPA and UV leave it unchanged.',src:'Ventilation can cut several hundred ppm; HEPA / UV cut none.',improve:'Paired before/after CO&#8322; logging during occupancy.'},
-  delta:{def:'Fraction of school time the intervention is actually in use (seasonal/weather), mainly below 1 for outdoor classrooms.',src:'Outdoor &asymp;0.10&ndash;0.40, climate-specific.',improve:'Local climate and timetable data.'},
-  kappa:{key:1,def:'Share of a child&#8217;s infections acquired at school. From closure evidence, so an upper bound &mdash; it subsumes corridors, transport and playgrounds.',src:'Not directly estimated; closure experiments imply it is substantial but uncertain (Cauchemez et al.; Litvinova; Eames).',improve:'Link classroom monitoring to individual infection and attendance records to attribute infections to settings.'},
-  sigma:{key:1,def:'Share of the &kappa;-attributable burden acquired specifically in the spaces the intervention treats. Near 1 for whole-school HVAC; smaller for a single-room unit.',src:'Not estimated. The addressable fraction is &kappa;&middot;&sigma;, not &kappa; alone.',improve:'Monitor treated and untreated spaces simultaneously with case-source attribution.'},
-  pi:{key:1,def:'Fraction of a year&#8217;s exposure-driven test-score gain that becomes durable human capital, net of fade-out. It converts a short-run performance gain into a permanent-equivalent SD that earns the &rho;_SD return.',src:'Conservative central 0.10. Teacher-induced test-score gains persist ~0.4&ndash;0.6 one year out but stabilise at ~25% of the initial impact (Jacob, Lefgren &amp; Sims 2010; Chetty, Friedman &amp; Rockoff 2014); CO&#8322;&rarr;cognition is more likely a short-run state effect than durable skill-building (Bailey et al. 2017), so a sub-residual default is used. Not directly estimated for IAQ. Note &rho;_SD itself uses the full cross-sectional test&ndash;earnings gradient, so the cognitive term is an upper bound even after this discount.',improve:'Multi-year follow-up of standardised scores after an IAQ intervention (e.g. at 1 and 3 years).'},
-  rhoc:{key:1,def:'Average out-of-school secondary infections per case under endemic conditions; M = &rho;_c/(1&minus;&rho;_c) sums the downstream tree.',src:'Not estimated for endemic seasonal disease; amplification is established (Lloyd-Smith; Forbes; Flasche &amp; Edmunds).',improve:'Household follow-up of index child cases, restricted to chains outside school, under endemic conditions.'},
-  n:{def:'Children per classroom; benefits scale with class size.',src:'Typically 25&ndash;28 (education statistics).'},
-  K:{def:'Up-front capital cost, annualised over the service life by the capital-recovery factor.',src:'HEPA NZD ~600&ndash;1,200 for two units; mechanical ventilation tens of thousands; outdoor minimal.'},
-  L:{def:'Service life over which capital is annualised.',src:'HEPA &asymp;5 years; mechanical ventilation 20&ndash;25 years.'},
-  r:{def:'Annual discount rate used to annualise capital.',src:'Commonly 3&ndash;5%.'},
-  EM:{def:'Annual energy and maintenance (filters, lamps, HVAC energy penalty).',src:'HEPA recurring filters/electricity; mechanical ventilation a climate-dependent energy penalty.'},
-  rhosd:{def:'Present value of lifetime earnings associated with a one-SD test-score gain; converts learning to money.',src:'Chetty et al.: 1 SD &asymp; +18% earnings; applied to NZ lifetime earnings, roughly NZD 150,000&ndash;300,000 (PPP-adjusted, scale-dependent).',improve:'Local earnings linked to the relevant test-score scale.'},
-  m:{def:'Respiratory-infection episodes per child per year.',src:'&asymp;3&ndash;5 ARI/year (GBD; Ayd&#305;n et al.).'},
-  phi:{def:'Share of infection in the treated setting that is airborne and addressable.',src:'Setting/pathogen-specific, &asymp;0.3&ndash;0.6 (Rudnick &amp; Milton; Peng &amp; Jimenez).'},
-  beta:{def:'Test-score SD gain per unit CO&#8322; reduction per year (cognitive dose-response).',src:'&asymp;0.0002&ndash;0.0004 SD/ppm (Wargocki; Haverinen-Shaughnessy).'},
-  p_med:{def:'Probability an episode is medically attended.',src:'Country health statistics.'},
-  c_ch:{def:'Direct healthcare cost per attended child episode.',src:'GP visit plus medication; subsidised NZ primary care, order NZD 50&ndash;100.'},
-  u_ch:{def:'QALY loss per child episode.',src:'EQ-5D/SF-6D literature, &asymp;0.002&ndash;0.005.'},
-  lambda:{def:'Monetary value of one QALY (cost-effectiveness threshold).',src:'No formal PHARMAC threshold; NZ studies use willingness-to-pay &asymp; NZD 45,000/QALY (e.g. NZD 46,645).'},
-  abar:{def:'Expected school-absence days per infection episode.',src:'&asymp;2&ndash;3 days (Wheeler et al.).'},
-  rho_day:{def:'Human-capital value of one preserved school day (attendance margin), distinct from the per-day learning gain g&middot;&rho;_SD.',src:'Future-earnings value of a school day; order NZD tens to low hundreds.'},
-  c_sup:{def:'Caregiver supervision/time cost per child illness episode.',src:'Roughly one lost workday at NZ median earnings (~NZD 269/day; Stats NZ June 2024).'},
-  psi_w:{def:'Population-weighted cost of a secondary case (working-age adults, siblings, older adults), mixing productivity, healthcare and mortality.',src:'Household-study mixes (Forbes et al.); order NZD several hundred.'}
-};
-var PRESETS={hepa:{Q0:4,dq:5.4,dco2:0,delta:1,K:900,L:5,r:0.03,EM:250},mech:{Q0:4,dq:7,dco2:400,delta:1,K:30000,L:20,r:0.03,EM:500},natural:{Q0:4,dq:3.6,dco2:400,delta:1,K:0,L:10,r:0.03,EM:30},outdoor:{Q0:4,dq:12,dco2:600,delta:0.25,K:600,L:5,r:0.03,EM:80}};
-var PRESETLAB={hepa:'HEPA',mech:'Mech vent',natural:'Natural vent',outdoor:'Outdoor'};
-var SYMKEY=[
-  ['NSB','Net social benefit','The headline result: society-wide benefit minus cost, per classroom-year (&delta;&middot;n&middot;(B<sup>dir</sup>+B<sup>sec</sup>) &minus; C<sub>j</sub>).',null],
-  ['B<sup>dir</sup>','Direct-to-child benefit','Value to the children breathing the cleaner air: their own averted illness plus durable learning.',null],
-  ['B<sup>sec</sup>','Secondary benefit','Downstream value when an averted child infection does not spread to caregivers and the community.',null],
-  ['&delta;','Feasibility discount','delta'],
-  ['n','Class size','n'],
-  ['m','Infection burden','m'],
-  ['&kappa;','School-attributable fraction','kappa'],
-  ['&sigma;','Treated-setting fraction','sigma'],
-  ['&phi;','Airborne fraction','phi'],
-  ['&theta;','Transmission reduction','How much the delivered clean air cuts per-exposure infection risk: &eta;&middot;&Delta;q / (Q&#8320;+&eta;&middot;&Delta;q).','dq'],
-  ['&eta;&middot;&Delta;q','Delivered clean air','dq'],
-  ['Q&#8320;','Baseline clean air','Q0'],
-  ['p<sub>med</sub>','Prob. medically attended','p_med'],
-  ['c<sub>ch</sub>','Child healthcare cost','c_ch'],
-  ['u<sub>ch</sub>','QALY loss / episode','u_ch'],
-  ['&lambda;','Value of a QALY','lambda'],
-  ['&#257;','School days lost / episode','abar'],
-  ['&rho;<sub>day</sub>','Value of a school day','rho_day'],
-  ['g','Durable cognitive gain','The learning that sticks: durable test-score SD gain per child-year, &beta;&middot;&Delta;CO&#8322;&middot;&pi;.','pi'],
-  ['&beta;','CO&#8322; dose-response','beta'],
-  ['&Delta;CO&#8322;','CO&#8322; reduction','dco2'],
-  ['&pi;','Persistence factor','pi'],
-  ['&rho;<sub>SD</sub>','Earnings per SD gain','rhosd'],
-  ['c<sub>sup</sub>','Caregiver cost','c_sup'],
-  ['M','Downstream multiplier','Expected out-of-school secondary infections per averted case: &rho;<sub>c</sub>/(1&minus;&rho;<sub>c</sub>).','rhoc'],
-  ['&rho;<sub>c</sub>','Onward reproduction','rhoc'],
-  ['&psi;<sub>w</sub>','Weighted secondary cost','psi_w'],
-  ['C<sub>j</sub>','Annual cost','Annualised intervention cost: capital K spread over life L at rate r (the CRF) plus annual energy and maintenance.','K'],
-  ['K','Up-front capital','K'],
-  ['L','Service life','L'],
-  ['r','Discount rate','r'],
-  ['E<sub>om</sub>','Energy + maintenance','EM']
-];
-
-var DEF={},V={},DEC={},MIN={},MAX={};
-Object.keys(SPEC).forEach(function(g){SPEC[g].forEach(function(s){DEF[s[0]]=s[5];DEC[s[0]]=s[6];MIN[s[0]]=s[2];MAX[s[0]]=s[3];});});
-
-function crf(r,L){return r/(1-Math.pow(1+r,-L));}
-function compute(v){
-  var Cj=v.K*crf(v.r,v.L)+v.EM;
-  var perinf=v.p_med*v.c_ch+v.u_ch*v.lambda+v.abar*v.rho_day;
-  var M=v.rhoc/(1-v.rhoc), theta=v.dq/(v.Q0+v.dq);
-  var g=v.beta*v.dco2*v.pi, gval=g*v.rhosd, sec=v.c_sup+M*v.psi_w;
-  var coeff=v.m*v.kappa*v.sigma*v.phi*theta, di=v.delta*v.n*coeff;
-  var illness=di*perinf, cog=v.delta*v.n*gval, secondary=di*sec;
-  var benefit=illness+cog+secondary, nsb=benefit-Cj, bcr=Cj>0?benefit/Cj:Infinity;
-  var Cnet=Cj-v.delta*v.n*gval, denom=v.delta*v.n*v.m*v.kappa*v.sigma*v.phi;
-  var tStar=denom>0?Cnet/(denom*perinf):Infinity, tStar2=denom>0?Cnet/(denom*(perinf+sec)):Infinity;
-  return {Cj:Cj,theta:theta,di:di,g:g,gval:gval,nsb:nsb,bcr:bcr,Cnet:Cnet,tStar:tStar,tStar2:tStar2,illness:illness,cog:cog,secondary:secondary};
-}
-function nf(x){return Math.round(x).toLocaleString('en-NZ');}
-function money(x){return CUR+nf(x);}
-function fmtBCR(b){if(!isFinite(b))return '&infin;';if(b>=100)return '&gt;100&times;';return b.toFixed(1)+'&times;';}
-function clamp(x,id){return Math.max(MIN[id],Math.min(MAX[id],x));}
-
-function uncertainty(v){var N=4000,out=new Array(N),w=Object.assign({},v),i;
-  for(i=0;i<N;i++){w.kappa=0.10+Math.random()*0.30;w.sigma=0.20+Math.random()*0.70;w.pi=0.01+Math.random()*0.59;w.rhoc=0.10+Math.random()*0.40;out[i]=compute(w).nsb;}
-  out.sort(function(a,b){return a-b;});var P=function(p){return out[Math.min(N-1,Math.max(0,Math.floor(p/100*N)))];};
-  return {p5:P(5),p50:P(50),p95:P(95)};}
-
-function safe(fn){try{fn();}catch(e){if(window.console)console.warn(e);}}
-
-function render(){
-  var r=compute(V);
-  document.getElementById('o-nsb').innerHTML=money(r.nsb);
-  document.getElementById('o-bcr').innerHTML=fmtBCR(r.bcr);
-  document.getElementById('o-cj').innerHTML=money(r.Cj)+'/yr';
-  document.getElementById('o-theta').textContent=r.theta.toFixed(2);
-  document.getElementById('o-di').textContent=r.di.toFixed(2);
-  document.getElementById('o-g').innerHTML=r.g.toFixed(3)+' SD ('+money(r.gval)+'/child)';
-  var v=document.getElementById('o-verdict');
-  if(r.nsb>0){v.textContent='Cost-beneficial';v.style.background='var(--ok-bg)';v.style.color='var(--ok-tx)';}
-  else{v.textContent='Not cost-beneficial';v.style.background='var(--no-bg)';v.style.color='var(--no-tx)';}
-  safe(function(){
-    var chip=document.getElementById('o-thrchip'),above=r.theta>=r.tStar2;
-    chip.className='chip';chip.style.background=above?'var(--ok-bg)':'var(--no-bg)';chip.style.color=above?'var(--ok-tx)':'var(--no-tx)';
-    chip.textContent=r.Cnet<=0?'cognition alone clears it':(above?'above break-even':'below break-even');
-    document.getElementById('o-thr').innerHTML=r.Cnet<=0?'Cognitive benefits alone cover the cost.':('&theta;* '+(isFinite(r.tStar)?r.tStar.toFixed(2):'&mdash;')+' (children) / &theta;** '+(isFinite(r.tStar2)?r.tStar2.toFixed(2):'&mdash;')+' (with community) vs your &theta; = '+r.theta.toFixed(2));
-  });
-  safe(function(){sayer(r);});
-  safe(function(){waterfall(r);});
-  safe(function(){var u=uncertainty(V);document.getElementById('o-urange').innerHTML='['+money(u.p5)+', '+money(u.p95)+'] &middot; '+money(u.p50);
-    var lo=Math.min(0,u.p5),hi=Math.max(0,u.p95),span=(hi-lo)||1,X=function(x){return 100*(x-lo)/span;};
-    document.getElementById('o-uband').innerHTML='<div class="uaxis"></div><div class="urange" style="left:'+X(u.p5).toFixed(1)+'%;width:'+Math.max(1,X(u.p95)-X(u.p5)).toFixed(1)+'%"></div><div class="umed" style="left:'+X(u.p50).toFixed(1)+'%"></div>'+(lo<0&&hi>0?'<div class="uzero" style="left:'+X(0).toFixed(1)+'%"></div>':'');});
-  safe(compareTable);
-  safe(tornado);
-  var cogOn=V.dco2>0;document.getElementById('cogPath').style.opacity=cogOn?1:0.18;document.getElementById('cogNote').textContent=cogOn?'':'no CO₂ change → no cognitive gain';
-  writeHash();
-}
-function dominant(r){var a=[['averted illness',r.illness],['the learning (cognitive) gain',r.cog],['downstream community cases',r.secondary]];a.sort(function(x,y){return y[1]-x[1];});return a[0];}
-function sayer(r){
-  var pre=activePreset, name=pre?PRESETLAB[pre].toLowerCase():'this intervention', dom=dominant(r), share=r.illness+r.cog+r.secondary>0?Math.round(100*dom[1]/(r.illness+r.cog+r.secondary)):0;
-  var s='Installing '+name+' in this '+Math.round(V.n)+'-child classroom yields about '+money(r.nsb)+'/year of net social benefit, returning '+(isFinite(r.bcr)?(r.bcr>=100?'over 100':r.bcr.toFixed(1)):'∞')+' dollars per dollar spent &mdash; mostly from '+dom[0]+' ('+share+'%). ';
-  s+= V.dco2>0?'The cognitive channel is active because this measure lowers CO₂.':'The cognitive channel is inactive because this measure does not lower CO₂.';
-  document.getElementById('o-say').innerHTML=s;
-}
-function waterfall(r){
-  var items=[['Illness',r.illness,'var(--c-illness)'],['Cognitive',r.cog,'var(--c-cog)'],['Secondary',r.secondary,'var(--c-sec)'],['Cost',-r.Cj,'var(--c-cost)']];
-  var W=460,H=200,padB=30,padT=8,x0=10,bw=68,gap=12,cum=0,pts=[],i,peak=0,trough=0;
-  for(i=0;i<items.length;i++){var a=cum,b=cum+items[i][1];pts.push([a,b,items[i][2],items[i][0]]);cum=b;peak=Math.max(peak,a,b);trough=Math.min(trough,a,b);}
-  var nsb=r.nsb;peak=Math.max(peak,nsb,0);trough=Math.min(trough,nsb,0);
-  var span=(peak-trough)||1,sc=function(y){return padT+(peak-y)/span*(H-padB-padT);};
-  var svg='';
-  svg+='<line x1="'+x0+'" y1="'+sc(0).toFixed(1)+'" x2="'+(W-6)+'" y2="'+sc(0).toFixed(1)+'" stroke="var(--border)"/>';
-  for(i=0;i<pts.length;i++){var p=pts[i],x=x0+i*(bw+gap),top=sc(Math.max(p[0],p[1])),bot=sc(Math.min(p[0],p[1])),h=Math.max(1,bot-top);
-    svg+='<rect x="'+x+'" y="'+top.toFixed(1)+'" width="'+bw+'" height="'+h.toFixed(1)+'" rx="2" fill="'+p[2]+'"/>';
-    svg+='<text x="'+(x+bw/2)+'" y="'+(H-padB+13)+'" text-anchor="middle" class="nsub">'+p[3]+'</text>';}
-  var xn=x0+pts.length*(bw+gap),tn=sc(Math.max(0,nsb)),bn=sc(Math.min(0,nsb)),hn=Math.max(1,bn-tn);
-  svg+='<rect x="'+xn+'" y="'+tn.toFixed(1)+'" width="'+bw+'" height="'+hn.toFixed(1)+'" rx="2" fill="var(--accent)"/>';
-  svg+='<text x="'+(xn+bw/2)+'" y="'+(H-padB+13)+'" text-anchor="middle" class="nlab" font-weight="600">NSB</text>';
-  svg+='<text x="'+(xn+bw/2)+'" y="'+(Math.min(tn,bn)-4).toFixed(1)+'" text-anchor="middle" class="nsub">'+nf(nsb)+'</text>';
-  document.getElementById('waterfall').innerHTML=svg;
-}
-function compareTable(){
-  var keep=Object.assign({},V),html='<tr><th>Intervention</th><th>NSB (NZD)</th><th>BCR</th><th>Verdict</th></tr>',k;
-  for(k in PRESETS){var w=Object.assign({},V,PRESETS[k]),r=compute(w);
-    html+='<tr><td>'+PRESETLAB[k]+'</td><td>'+nf(r.nsb)+'</td><td>'+fmtBCR(r.bcr)+'</td><td>'+(r.nsb>0?'<span style="color:var(--ok-tx)">yes</span>':'<span style="color:var(--no-tx)">no</span>')+'</td></tr>';}
-  document.getElementById('o-compare').innerHTML=html;
-}
-function tornado(){
-  var base=compute(V).nsb,rows=[],g,k;
-  for(g in SPEC){for(k=0;k<SPEC[g].length;k++){var id=SPEC[g][k][0];if(id==='n')continue;
-    var lo=Object.assign({},V);lo[id]=MIN[id];var hi=Object.assign({},V);hi[id]=MAX[id];
-    var a=compute(lo).nsb,b=compute(hi).nsb;rows.push([id,Math.min(a,b),Math.max(a,b),Math.abs(b-a)]);}}
-  rows.sort(function(x,y){return y[3]-x[3];});rows=rows.slice(0,7);
-  var mx=Math.max.apply(null,rows.map(function(r){return r[3];}))||1,html='';
-  rows.forEach(function(r){var lab=(DEFS[r[0]]&&SPEC_label(r[0]))||r[0];
-    html+='<div class="bar"><span class="l">'+lab+'</span><span class="t"><span class="f" style="width:'+(100*r[3]/mx).toFixed(0)+'%;background:var(--accent)"></span></span><span class="v">'+nf(r[3])+'</span></div>';});
-  document.getElementById('o-tornado').innerHTML=html;
-}
-function SPEC_label(id){var g,k;for(g in SPEC)for(k=0;k<SPEC[g].length;k++)if(SPEC[g][k][0]===id)return SPEC[g][k][1].replace(/&[a-z0-9#]+;/g,'').replace(/\(.*?\)/g,'').trim().slice(0,22)||id;return id;}
-
-function fmtVal(id){var d=DEC[id];return d>0?V[id].toFixed(d):Math.round(V[id]).toLocaleString('en-NZ');}
-function syncRow(id){var sl=document.getElementById('s-'+id);if(sl)sl.value=V[id];var o=document.getElementById('v-'+id);if(o)o.textContent=fmtVal(id);}
-function defHTML(id){var d=DEFS[id];if(!d)return '';var h='<div class="def'+(d.key?' keystone':'')+'" id="d-'+id+'" hidden><div>'+d.def+'</div>';if(d.src)h+='<div style="margin-top:6px;"><span class="lbl">Baseline &amp; sources</span><br>'+d.src+'</div>';if(d.improve)h+='<div style="margin-top:6px;"><span class="lbl">How a study sharpens it</span><br>'+d.improve+'</div>';return h+'</div>';}
-function pulseNode(link){if(!link)return;var n=document.querySelector('#diagram .node[data-link="'+link+'"]');if(!n)return;n.classList.add('pulse');setTimeout(function(){n.classList.remove('pulse');},900);}
-function buildSymKey(){
-  var host=document.getElementById('symkey');if(!host)return;
-  SYMKEY.forEach(function(e,i){var b=document.createElement('button');b.type='button';b.className='symchip';b.setAttribute('data-i',i);b.innerHTML=e[0];host.appendChild(b);});
-  host.addEventListener('click',function(ev){var b=ev.target.closest('.symchip');if(!b)return;var i=+b.getAttribute('data-i'),e=SYMKEY[i],def,slider;
-    if(e.length===3){slider=e[2];def=(DEFS[slider]&&DEFS[slider].def)||'';}else{def=e[2];slider=e[3]||null;}
-    document.querySelectorAll('#symkey .symchip').forEach(function(c){c.classList.remove('on');});b.classList.add('on');
-    var d=document.getElementById('symdef');d.removeAttribute('hidden');d.innerHTML='<b>'+e[0]+'</b> &mdash; '+e[1]+'. '+def;
-    if(slider&&LINK[slider])pulseNode(LINK[slider]);
-  });
-}
-function build(){
-  Object.keys(SPEC).forEach(function(g){var host=document.getElementById('grp-'+g);
-    SPEC[g].forEach(function(s){var id=s[0],row=document.createElement('div');row.className='ctl';
-      row.innerHTML='<button type="button" class="plabel" id="b-'+id+'" aria-expanded="false">'+s[1]+(DEFS[id]&&DEFS[id].key?'<span class="tag">critical</span>':'')+' <span class="car">&#9662;</span></button><span class="out" id="v-'+id+'"></span><input type="range" id="s-'+id+'" min="'+s[2]+'" max="'+s[3]+'" step="'+s[4]+'" value="'+s[5]+'"><div class="ticks"><span>'+s[2]+'</span><span class="dflt">def '+s[5]+'</span><span>'+s[3]+'</span></div>';
-      host.appendChild(row);host.insertAdjacentHTML('beforeend',defHTML(id));V[id]=s[5];
-      row.querySelector('input').addEventListener('input',function(e){V[id]=parseFloat(e.target.value);document.getElementById('v-'+id).textContent=fmtVal(id);activePreset=detectPreset();markPresets();render();});
-      var btn=document.getElementById('b-'+id);
-      if(DEFS[id])btn.addEventListener('click',function(){var p=document.getElementById('d-'+id),open=p.hasAttribute('hidden');if(open)p.removeAttribute('hidden');else p.setAttribute('hidden','');btn.setAttribute('aria-expanded',open?'true':'false');btn.querySelector('.car').innerHTML=open?'&#9652;':'&#9662;';pulseNode(LINK[id]);});
-      else btn.style.borderBottom='none';
-    });});
-}
-var activePreset=null;
-function detectPreset(){var k,id,ok;for(k in PRESETS){ok=true;for(id in PRESETS[k])if(Math.abs((V[id]||0)-PRESETS[k][id])>1e-9){ok=false;break;}if(ok)return k;}return null;}
-function markPresets(){var btns=document.querySelectorAll('#presets button');btns.forEach(function(b){b.classList.toggle('on',b.dataset.preset===activePreset);});
-  document.querySelectorAll('.intvdefs [data-intv]').forEach(function(d){d.classList.toggle('on',d.getAttribute('data-intv')===activePreset);});}
-function setAll(obj){Object.keys(obj).forEach(function(k){if(k in V){V[k]=obj[k];syncRow(k);}});activePreset=detectPreset();markPresets();render();}
-
-function writeHash(){var p=[];Object.keys(V).forEach(function(k){p.push(k+'='+V[k]);});history.replaceState(null,'','#'+p.join('&'));}
-function readHash(){var h=location.hash.replace(/^#/,'');if(!h)return;h.split('&').forEach(function(kv){var a=kv.split('=');if(a.length===2&&a[0] in DEF){var x=parseFloat(a[1]);if(!isNaN(x))V[a[0]]=clamp(x,a[0]);}});}
-
-function dl(name,type,data){try{var b=new Blob([data],{type:type}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},1000);}catch(e){}}
-function exportJSON(){var r=compute(V);dl('cascade-scenario.json','application/json',JSON.stringify({currency:'NZD',inputs:V,outputs:r},null,2));}
-function exportCSV(){var r=compute(V),rows=[['type','key','value']],k;for(k in V)rows.push(['input',k,V[k]]);['Cj','theta','di','g','gval','nsb','bcr','illness','cog','secondary'].forEach(function(k){rows.push(['output',k,r[k]]);});dl('cascade-scenario.csv','text/csv',rows.map(function(r){return r.join(',');}).join('\n'));}
-
-var TOUR=[['#presets','Start here. Pick an intervention preset; everything below recalculates instantly.'],['#o-nsb','This is the headline: net social benefit per classroom per year, in NZD. Green badge = worth it to society.'],['#grp-a','Adjust your classroom: the air-quality gain you measured (or expect).'],['#grp-b','These four critical unknowns are the big drivers and the least certain. Click any name to see the evidence and how a study would pin it down.'],['#diagram','Watch the green cognitive path switch on for ventilation and off for HEPA. Then explore, and use "Copy shareable link" to send a scenario.']];
-var tstep=0;
-function showTour(i){var wrap=document.getElementById('tourwrap'),spot=document.getElementById('spot'),box=document.getElementById('tourbox');if(i>=TOUR.length){endTour();return;}tstep=i;var el=document.querySelector(TOUR[i][0]);if(!el){showTour(i+1);return;}var rc=el.getBoundingClientRect();wrap.style.display='block';spot.style.display='block';spot.style.left=(rc.left-6)+'px';spot.style.top=(rc.top-6)+'px';spot.style.width=(rc.width+12)+'px';spot.style.height=(rc.height+12)+'px';box.style.display='block';var bt=Math.min(window.innerHeight-130,rc.bottom+10);box.style.top=bt+'px';box.style.left=Math.max(10,Math.min(window.innerWidth-310,rc.left))+'px';box.innerHTML='<div style="margin-bottom:8px;">'+TOUR[i][1]+'</div><div style="display:flex;gap:8px;justify-content:space-between;"><button type="button" id="t-skip" style="font-size:13px;">Skip</button><button type="button" id="t-next" style="font-size:13px;">'+(i===TOUR.length-1?'Done':'Next')+'</button></div>';document.getElementById('t-skip').onclick=endTour;document.getElementById('t-next').onclick=function(){showTour(i+1);};}
-function endTour(){document.getElementById('tourwrap').style.display='none';document.getElementById('spot').style.display='none';document.getElementById('tourbox').style.display='none';}
-
-build();
-readHash();
-Object.keys(V).forEach(syncRow);
-activePreset=detectPreset();markPresets();
-safe(function(){var html='<ul>';['kappa','sigma','pi','rhoc'].forEach(function(id){html+='<li><b>'+SPEC_label(id)+' ('+id+')</b>: '+DEFS[id].improve+'</li>';});document.getElementById('agenda').innerHTML=html+'</ul>';});
-safe(buildSymKey);
-render();
-
-document.getElementById('presets').addEventListener('click',function(e){var b=e.target.closest('button');if(b&&PRESETS[b.dataset.preset]){activePreset=b.dataset.preset;setAll(PRESETS[b.dataset.preset]);}});
-document.getElementById('reset').addEventListener('click',function(){setAll(DEF);});
-document.getElementById('copy-link').addEventListener('click',function(){var lab=document.getElementById('copy-label');function d(){lab.textContent='Link copied';setTimeout(function(){lab.textContent='Copy shareable link';},1500);}if(navigator.clipboard)navigator.clipboard.writeText(location.href).then(d,d);else d();});
-document.getElementById('copy-cite').addEventListener('click',function(){var t=document.getElementById('cite').textContent;if(navigator.clipboard)navigator.clipboard.writeText(t);this.textContent='Copied';var b=this;setTimeout(function(){b.textContent='Copy citation';},1500);});
-document.getElementById('exp-json').addEventListener('click',exportJSON);
-document.getElementById('exp-csv').addEventListener('click',exportCSV);
-document.getElementById('tour-start').addEventListener('click',function(){showTour(0);});
-document.getElementById('tourwrap').addEventListener('click',endTour);
-document.querySelectorAll('#diagram .node').forEach(function(n){n.style.cursor='pointer';n.addEventListener('click',function(){var lk=n.getAttribute('data-link');for(var id in LINK)if(LINK[id]===lk){var b=document.getElementById('b-'+id);if(b){b.scrollIntoView({behavior:'smooth',block:'center'});pulseNode(lk);}break;}});});
-if(window.renderMathInElement)safe(function(){renderMathInElement(document.getElementById('formulas'),{delimiters:[{left:'$$',right:'$$',display:true}],throwOnError:false});});
-})();
-</script>
-</body>
-</html>
+<footer><div class="footer-brand">CASCADE <span>Classroom Air, School-acquired Contagion,<br>And Downstream Economics</span></div><p>Austin Henderson · University of Otago<br>Website preview 0.8 · 22 September 2026 · <a href="research.html">Research &amp; scope</a></p><p>No accounts. No analytics.<br>Scenario calculations stay in your browser.</p></footer>
+<div class="mobile-results"><div><span id="mobile-horizon">Scenario net value</span><strong id="mobile-net">—</strong></div><a href="#workspace">Edit inputs</a><a class="mobile-primary" href="#results">View results ↗</a></div>
+<div id="live-summary" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<noscript><div class="notice">Enable JavaScript to calculate scenarios. The evidence and methods remain readable.</div></noscript>
+</body></html>
