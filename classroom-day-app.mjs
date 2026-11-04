@@ -202,7 +202,8 @@ function renderHandoff() {
   const s = sim.summary;
   const baselineFlow = Math.max(0.01, Math.round(s.meanOutdoorLps * 100) / 100), addedFlow = Math.round(s.meanCadr / 10) * 10;
   const v = {...CALC_DEFAULTS, pupils: 25, occupants: 26, baselineFlow, addedFlow};
-  $('handoff').href = 'index.html' + encodeScenario(v);
+  const base = document.querySelector('meta[name="cascade-calculator"]')?.content || 'index.html';
+  $('handoff').href = base + encodeScenario(v);
   $('handoff-text').textContent = `Today's lessons averaged ${fmt(baselineFlow, 1)} L/s/person of outdoor air and ${fmt(addedFlow)} m³/h of filtered air. Take these to the calculator's airflow route, which assumes constant steady-state delivery, and compare costs and valued outcomes over several years.`;
 }
 
