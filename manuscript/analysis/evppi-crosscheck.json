@@ -1,0 +1,80 @@
+{
+ "S1": [
+  {
+   "key": "episodes",
+   "js_spline": 74.31740554988441,
+   "js_binning": 75.80594270690564,
+   "py_spline": 74.31751084582926
+  },
+  {
+   "key": "addressable",
+   "js_spline": 64.69543207811361,
+   "js_binning": 68.00349083839811,
+   "py_spline": 64.69541326132985
+  },
+  {
+   "key": "qalyLoss",
+   "js_spline": 39.36745552474804,
+   "js_binning": 40.51318909933186,
+   "py_spline": 39.36749151384553
+  },
+  {
+   "key": "capital",
+   "js_spline": 11.46143632856286,
+   "js_binning": 14.53967217270785,
+   "py_spline": 11.46138884096046
+  }
+ ],
+ "S2": [
+  {
+   "key": "addressable",
+   "js_spline": 1.7172630712088903,
+   "js_binning": 2.922747397598414,
+   "py_spline": 1.7171924143258366
+  },
+  {
+   "key": "episodes",
+   "js_spline": 1.672236591516139,
+   "js_binning": 2.390734525158223,
+   "py_spline": 1.6722626398377543
+  },
+  {
+   "key": "caregiverCost",
+   "js_spline": 0.026516435874782474,
+   "js_binning": 0,
+   "py_spline": 0.026519326927882503
+  },
+  {
+   "key": "baselineFlow",
+   "js_spline": 0,
+   "js_binning": 0,
+   "py_spline": 0.0
+  }
+ ],
+ "S5": [
+  {
+   "key": "rr",
+   "js_spline": 9424.695686687739,
+   "js_binning": 9444.43053242351,
+   "py_spline": 9424.69175663647
+  },
+  {
+   "key": "operating",
+   "js_spline": 1.543530805619032,
+   "js_binning": 27.974613668810587,
+   "py_spline": 1.543673290827684
+  },
+  {
+   "key": "capital",
+   "js_spline": 0.7521348890471937,
+   "js_binning": 29.57858877654721,
+   "py_spline": 0.7521402145227254
+  },
+  {
+   "key": "episodes",
+   "js_spline": 0,
+   "js_binning": 10.740932886156585,
+   "py_spline": 0.0
+  }
+ ]
+}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only">
+  <info><title>Vancouver (brackets, compact)</title><id>local-vancouver-brackets</id><updated>2026-11-04T00:00:00+00:00</updated></info>
+  <macro name="author"><names variable="author"><name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always" et-al-min="7" et-al-use-first="6"/><et-al term="et-al"/><substitute><names variable="editor"/></substitute></names></macro>
+  <citation collapse="citation-number"><sort><key variable="citation-number"/></sort><layout prefix="[" suffix="]" delimiter=","><text variable="citation-number"/></layout></citation>
+  <bibliography et-al-min="7" et-al-use-first="6" second-field-align="flush">
+    <layout suffix="">
+      <text variable="citation-number" suffix=". "/>
+      <text macro="author" suffix=". "/>
+      <text variable="title" suffix=". "/>
+      <choose>
+        <if type="book"><group delimiter=": " suffix="; "><text variable="publisher-place"/><text variable="publisher"/></group><date variable="issued" suffix="."><date-part name="year"/></date></if>
+        <else-if type="article-journal">
+          <text variable="container-title" form="short" suffix=". "/>
+          <date variable="issued"><date-part name="year"/></date>
+          <group prefix=";"><text variable="volume"/><text variable="issue" prefix="(" suffix=")"/></group>
+          <text variable="page" prefix=":"/><text value="."/>
+        </else-if>
+        <else><text variable="publisher" suffix=". "/><date variable="issued" suffix=". "><date-part name="year"/></date><text variable="URL" suffix=". "/><text variable="note" suffix="."/></else>
+      </choose>
+      <text variable="DOI" prefix=" https://doi.org/"/>
+    </layout>
+  </bibliography>
+</style>

@@ -1,4 +1,5 @@
 import {EXAMPLES} from './examples.mjs';
+import {initPSA} from './psa-ui.mjs';
 import {VERSION,DEFAULTS,LIMITS,PRESETS,validate,compute,encodeScenario,decodeScenario} from './model.mjs';
 const $=id=>document.getElementById(id);
 const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -69,7 +70,7 @@ function renderErrors(){
 }
 function render(){
  $("example-status").textContent="";
- syncRoute();if(renderErrors())return;
+ syncRoute();if(renderErrors()){psa?.update(false);return;}psa?.update(true);
  const r=compute(state);lastResult=r;
  $('included-scope').textContent='Included: '+(state.route==='absence'?'absence resources':('healthcare resources'+(state.caregiverCost!==0?' · caregiver time':'')+(state.valueHealth?' · monetary health value':'')))+(state.includeLearning?' · terminal learning.':' · no learning value.');
  $('horizon-label').textContent=`· ${state.years}-year horizon`;
@@ -138,7 +139,7 @@ async function copyLink(){
  try{await navigator.clipboard.writeText(url);$('action-status').textContent='Versioned scenario link copied. Inputs are included in the link.';}
  catch{notice('Automatic copying was unavailable. Select and copy the scenario link below.');let box=$('manual-link');if(!box){box=document.createElement('textarea');box.id='manual-link';box.readOnly=true;box.setAttribute('aria-label','Scenario link to copy');box.style.width='100%';$('notice').append(box);}box.value=url;box.focus();box.select();$('action-status').textContent='Copy the displayed link manually.';}
 }
-buildFields();syncInputs();notice(parsed.notice);render();
+let psa=null;buildFields();syncInputs();notice(parsed.notice);psa=initPSA(()=>state);render();
 document.querySelectorAll('[data-example]').forEach(button=>button.addEventListener('click',()=>{
  const example=EXAMPLES[button.dataset.example];
  state={...example.inputs};activePreset=null;$('scenario-name').value=example.name;
