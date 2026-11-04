@@ -10,6 +10,24 @@ CASCADE explores the conditions under which a specified school clean-air interve
 - **Research:** the framework, evidence compatibility, valuation scope and worked manuscript examples.
 - **NZ classroom:** a separate cost and break-even application in New Zealand dollars for a defined older classroom. Sources and supplier prices are dated 13 September 2026.
 
+## Probabilistic sensitivity analysis
+
+The calculator includes a probabilistic sensitivity analysis (PSA) panel (`psa.mjs`, `psa-ui.mjs`). Every uncertain input is drawn from a distribution centred on the current scenario:
+
+- beta for proportions;
+- gamma for costs and positive burdens;
+- lognormal for ratios;
+- normal for terminal achievement.
+
+The panel reports:
+
+- the NPV distribution and the probability of exceeding break-even;
+- an acceptability curve over the monetary value of a QALY;
+- the per-cohort expected value of perfect information (EVPI) and population EVPI;
+- single-parameter expected value of partial perfect information (EVPPI), estimated with a nonparametric binning estimator.
+
+Runs are seeded and reproducible, and draws can be downloaded as CSV. The default distributions are generic uncertainty envelopes, not fitted evidence.
+
 ## Interpretation
 
 The calculator uses generic monetary units (MU), not a calibrated currency or school-specific benefit estimate. Choose one outcome route: an assumption-based steady-state airflow scenario, an endpoint-compatible infection episode-rate ratio, or an absence ratio. The latter two require justified inputs; no study is automatically selected.
@@ -20,7 +38,7 @@ The evidence synthesis is purposive and AI-assisted; independent human verificat
 
 ## Running locally
 
-Serve the repository with a static HTTP server, for example `python -m http.server 8000`, then open `http://localhost:8000/`. ES modules require HTTP rather than a file URL. No build step or external dependencies are required. Calculations run in the browser; there are no accounts or analytics.
+Serve the repository with a static HTTP server, for example `python -m http.server 8000`, then open `http://localhost:8000/`. ES modules require HTTP rather than a file URL. No build step or external dependencies are required. Run the test suite with `npm test` (Node 20 or later). Calculations run in the browser; there are no accounts or analytics.
 
 ## Version
 
