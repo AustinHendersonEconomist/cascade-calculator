@@ -24,7 +24,7 @@ The panel reports:
 - the NPV distribution and the probability of exceeding break-even;
 - an acceptability curve over the monetary value of a QALY;
 - the per-cohort expected value of perfect information (EVPI) and population EVPI;
-- single-parameter expected value of partial perfect information (EVPPI), estimated with a nonparametric binning estimator.
+- single-parameter expected value of partial perfect information (EVPPI), estimated by nonparametric spline regression.
 
 Runs are seeded and reproducible, and draws can be downloaded as CSV. The default distributions are generic uncertainty envelopes, not fitted evidence.
 

@@ -1,0 +1,80 @@
+{
+ "S1": [
+  {
+   "key": "episodes",
+   "js_spline": 74.31740554988441,
+   "js_binning": 75.80594270690564,
+   "py_spline": 74.31751084582926
+  },
+  {
+   "key": "addressable",
+   "js_spline": 64.69543207811361,
+   "js_binning": 68.00349083839811,
+   "py_spline": 64.69541326132985
+  },
+  {
+   "key": "qalyLoss",
+   "js_spline": 39.36745552474804,
+   "js_binning": 40.51318909933186,
+   "py_spline": 39.36749151384553
+  },
+  {
+   "key": "capital",
+   "js_spline": 11.46143632856286,
+   "js_binning": 14.53967217270785,
+   "py_spline": 11.46138884096046
+  }
+ ],
+ "S2": [
+  {
+   "key": "addressable",
+   "js_spline": 1.7172630712088903,
+   "js_binning": 2.922747397598414,
+   "py_spline": 1.7171924143258366
+  },
+  {
+   "key": "episodes",
+   "js_spline": 1.672236591516139,
+   "js_binning": 2.390734525158223,
+   "py_spline": 1.6722626398377543
+  },
+  {
+   "key": "caregiverCost",
+   "js_spline": 0.026516435874782474,
+   "js_binning": 0,
+   "py_spline": 0.026519326927882503
+  },
+  {
+   "key": "baselineFlow",
+   "js_spline": 0,
+   "js_binning": 0,
+   "py_spline": 0.0
+  }
+ ],
+ "S5": [
+  {
+   "key": "rr",
+   "js_spline": 11244.763675096247,
+   "js_binning": 11251.566659197124,
+   "py_spline": 11244.753448882417
+  },
+  {
+   "key": "capital",
+   "js_spline": 37.35091459487253,
+   "js_binning": 613.4690717725158,
+   "py_spline": 37.351434725315634
+  },
+  {
+   "key": "operating",
+   "js_spline": 14.02626833693975,
+   "js_binning": 577.6540334185332,
+   "py_spline": 14.026617672005324
+  },
+  {
+   "key": "medicalCost",
+   "js_spline": 0.3651432651925483,
+   "js_binning": 633.8994007669318,
+   "py_spline": 0.3654427168542403
+  }
+ ]
+}

@@ -7,8 +7,9 @@
 //     of a QALY,
 //   - the expected value of perfect information (EVPI), and
 //   - single-parameter expected value of partial perfect information (EVPPI),
-//     estimated by the nonparametric binning ("single-loop") method of
-//     Strong & Oakley (2013) and Sadatsafavi et al. (2013).
+//     estimated by nonparametric regression on a cubic spline basis
+//     (Strong, Oakley & Brennan, 2014); a binning estimator is retained as
+//     a cross-check.
 //
 // The decision is between the specified intervention and no added
 // intervention, whose incremental net benefit is zero by definition.
@@ -295,14 +296,14 @@ export function evpi(nb) {
 }
 
 /**
- * Single-parameter EVPPI by nonparametric binning. Iterations are sorted by
- * the parameter and divided into `bins` groups of near-equal size. The
- * conditional expected INB in each bin approximates E[INB | θ]. Then
+ * Single-parameter EVPPI by nonparametric binning (Sadatsafavi et al., 2013).
+ * Iterations are sorted by the parameter and divided into `bins` groups;
  * EVPPI ≈ mean_b max(E[INB | bin b], 0) − max(E[INB], 0).
- * The default bin count, ⌊√n⌋, balances bias and variance for moderate n.
- * Estimates are truncated to [0, EVPI], which bounds them in theory.
+ * Retained as a cross-check only: Monte Carlo noise in bin means is
+ * convexified by max(·, 0), so the estimator is biased upwards when the
+ * parameter explains little of the net-benefit variance.
  */
-export function evppi(theta, nb, bins = Math.floor(Math.sqrt(nb.length))) {
+export function evppiBinned(theta, nb, bins = Math.floor(Math.sqrt(nb.length))) {
   const n = nb.length;
   if (theta.length !== n) throw new RangeError('Parameter and net-benefit samples differ in length.');
   const idx = Array.from({length: n}, (_, i) => i).sort((a, b) => theta[a] - theta[b]);
@@ -312,8 +313,65 @@ export function evppi(theta, nb, bins = Math.floor(Math.sqrt(nb.length))) {
     let s = 0; for (let j = start; j < end; j++) s += nb[idx[j]];
     total += Math.max(s / (end - start), 0) * (end - start);
   }
-  const value = total / n - Math.max(mean(nb), 0);
-  return Math.min(Math.max(value, 0), evpi(nb));
+  return Math.min(Math.max(total / n - Math.max(mean(nb), 0), 0), evpi(nb));
+}
+
+/** Natural cubic spline basis (truncated-power form) with knots at quantiles. */
+function splineBasis(x, k) {
+  const n = x.length, sorted = Float64Array.from(x).sort();
+  const knots = Array.from({length: k}, (_, j) => sorted[Math.round(j * (n - 1) / (k - 1))]);
+  const last = knots[k - 1], pen = knots[k - 2];
+  const cube = z => z > 0 ? z * z * z : 0;
+  const d = (z, kj) => (cube(z - kj) - cube(z - last)) / (last - kj || 1);
+  const p = k; // intercept, linear term and k − 2 nonlinear terms
+  const X = Array.from({length: n}, (_, i) => {
+    const row = new Float64Array(p); row[0] = 1; row[1] = x[i];
+    for (let j = 0; j < k - 2; j++) row[2 + j] = d(x[i], knots[j]) - d(x[i], pen);
+    return row;
+  });
+  return X;
+}
+
+/** Least squares via normal equations with a small ridge for stability. */
+function leastSquaresFit(X, y) {
+  const n = X.length, p = X[0].length, A = Array.from({length: p}, () => new Float64Array(p + 1));
+  for (let i = 0; i < n; i++) {
+    const r = X[i];
+    for (let a = 0; a < p; a++) { A[a][p] += r[a] * y[i]; for (let b = a; b < p; b++) A[a][b] += r[a] * r[b]; }
+  }
+  for (let a = 0; a < p; a++) { for (let b = 0; b < a; b++) A[a][b] = A[b][a]; A[a][a] += 1e-9 * (A[a][a] || 1); }
+  for (let c = 0; c < p; c++) { // Gaussian elimination with partial pivoting
+    let piv = c; for (let r = c + 1; r < p; r++) if (Math.abs(A[r][c]) > Math.abs(A[piv][c])) piv = r;
+    [A[c], A[piv]] = [A[piv], A[c]];
+    if (Math.abs(A[c][c]) < 1e-300) continue;
+    for (let r = c + 1; r < p; r++) { const f = A[r][c] / A[c][c]; for (let k = c; k <= p; k++) A[r][k] -= f * A[c][k]; }
+  }
+  const beta = new Float64Array(p);
+  for (let r = p - 1; r >= 0; r--) {
+    let s = A[r][p]; for (let k = r + 1; k < p; k++) s -= A[r][k] * beta[k];
+    beta[r] = Math.abs(A[r][r]) < 1e-300 ? 0 : s / A[r][r];
+  }
+  return X.map(row => row.reduce((s, x, j) => s + x * beta[j], 0));
+}
+
+/**
+ * Single-parameter EVPPI by nonparametric regression (Strong, Oakley &
+ * Brennan, 2014), with a natural cubic regression spline in place of a GAM.
+ * E[INB | θ] is estimated by regressing the INB draws on a spline basis of θ;
+ * then EVPPI ≈ mean(max(ĝ(θ), 0)) − max(mean(ĝ(θ)), 0).
+ * Estimates are truncated to [0, EVPI], which bounds them in theory.
+ */
+export function evppi(theta, nb, knots = 6) {
+  const n = nb.length;
+  if (theta.length !== n) throw new RangeError('Parameter and net-benefit samples differ in length.');
+  let m = 0, v = 0; for (const t of theta) m += t; m /= n;
+  for (const t of theta) v += (t - m) ** 2;
+  const sd = Math.sqrt(v / (n - 1));
+  if (!(sd > 0)) return 0;
+  const z = Float64Array.from(theta, t => (t - m) / sd);
+  const fit = leastSquaresFit(splineBasis(z, knots), nb);
+  let s = 0, f = 0; for (const g of fit) { s += Math.max(g, 0); f += g; }
+  return Math.min(Math.max(s / n - Math.max(f / n, 0), 0), evpi(nb));
 }
 
 /**

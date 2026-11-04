@@ -1,7 +1,7 @@
 // Tests for the probabilistic sensitivity analysis module.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {rng, normalSampler, fromMoments, draw, defaultSpecs, simulate, runPSA, evpi, evppi,
+import {rng, normalSampler, fromMoments, draw, defaultSpecs, simulate, runPSA, evpi, evppi, evppiBinned,
   summarise, quantile, ceac, populationValue} from '../psa.mjs';
 import {DEFAULTS, compute} from '../model.mjs';
 import {EXAMPLES} from '../examples.mjs';
@@ -121,4 +121,21 @@ test('quantile and population value helpers', () => {
   assert.equal(quantile([1, 2, 3, 4, 5], 0.5), 3);
   assert.equal(quantile([0, 10], 0.25), 2.5);
   assert.equal(populationValue(10, 100, 5, 0), 5000);
+});
+
+test('regression EVPPI resists the upward bias of binning for weak parameters', () => {
+  // NB = 300·θ_strong + 5·θ_weak + large noise, decision near indifference.
+  const n = 10000, u = rng(9), z = normalSampler(u);
+  const strong = Float64Array.from({length: n}, () => z());
+  const weak = Float64Array.from({length: n}, () => z());
+  const nb = Float64Array.from({length: n}, (_, i) => 10 + 300 * strong[i] + 5 * weak[i] + 3000 * z());
+  assert.ok(evppi(weak, nb) < evppiBinned(weak, nb));
+  assert.ok(evppi(weak, nb) < 20, String(evppi(weak, nb)));
+});
+
+test('regression EVPPI captures nonlinear dependence', () => {
+  const n = 20000, u = rng(13), z = normalSampler(u);
+  const theta = Float64Array.from({length: n}, () => z());
+  const nb = theta.map(t => 400 * t * t - 400); // E[NB] = 0, sign depends on |θ|
+  assert.ok(evppi(theta, nb) > 0.95 * evpi(nb));
 });
