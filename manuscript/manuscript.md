@@ -14,21 +14,21 @@ link-citations: true
 
 **Corresponding author:** Austin Henderson, University of Otago, Dunedin, New Zealand. Email: [to be completed].
 
-**Word count:** main text approximately 4,000 words, excluding the abstract, tables, figure legends and references. 3 tables; 4 figures; 1 supplementary figure.
+**Word count:** main text approximately 4,400 words, excluding the abstract, tables, figure legends and references. 3 tables; 5 figures; 1 supplementary figure.
 
 ---
 
 # Abstract
 
-**Background.** Schools can reduce exposure to airborne infection and particulate matter with portable filtration or improved ventilation. Evidence on the outcomes that carry economic value is, however, sparse, heterogeneous and frequently null. These outcomes include infection episodes, absence, health-related quality of life and achievement. Deterministic break-even analysis shows what an intervention would need to achieve, but not how likely it is to achieve it or what further evidence would be worth.
+**Background.** Portable filtration and ventilation reduce classroom exposure to airborne particles, but evidence on valued outcomes (infection, absence, quality of life, achievement) is sparse and often null. Break-even analysis shows what an intervention must achieve, not how likely it is to do so or what further evidence is worth.
 
-**Objective.** To extend a transparent cost–benefit framework for classroom clean-air interventions (CASCADE) with probabilistic sensitivity analysis and value-of-information methods, and to show what these add to decisions made under the current evidence base.
+**Objective.** To extend a transparent cost–benefit framework for classroom clean air (CASCADE) with probabilistic sensitivity and value-of-information analysis.
 
-**Methods.** The framework compares a specified intervention with no added intervention for a stable cohort of pupils. It has three mutually exclusive outcome routes: a steady-state airflow route, a matched infection episode-rate ratio and a matched absence ratio. Annualised service costs and valued outcomes are discounted to a common date. We propagated parameter uncertainty by Monte Carlo simulation (10,000 iterations), using beta, gamma and lognormal distributions centred on the deterministic inputs. We estimated acceptability curves over the monetary value of a quality-adjusted life-year (QALY), the per-cohort expected value of perfect information (EVPI), and single-parameter expected value of partial perfect information (EVPPI) by nonparametric spline regression. Three hypothetical demonstrations, reported in synthetic monetary units (MU), varied the valuation scope and the effect evidence.
+**Methods.** A stable pupil cohort is followed for five years, comparing an intervention with no added intervention via one of three outcome routes (airflow scenario, matched infection rate ratio, matched absence ratio). We propagated uncertainty by Monte Carlo simulation and estimated acceptability curves, expected value of perfect information (EVPI), regression-based partial EVPI (EVPPI) and expected value of sample information (EVSI) for a trial of the effect ratio. Three hypothetical demonstrations use synthetic monetary units (MU).
 
-**Results.** All three demonstrations had the same present cost of 1,916 MU. When only child-health outcomes were valued (S1), the probability of positive net benefit was 0.29 and the EVPI was 227 MU per cohort. The baseline infection burden and the addressable infection fraction accounted for the largest partial values. Adding caregiver time (S2) raised the probability to 0.91 and reduced the EVPI to 47 MU. A null matched effect with moderate uncertainty (S5) gave a probability of 0.47 and an EVPI of 9,450 MU per cohort, almost all attributable to the effect ratio. In S5, a 1.8% reduction in infection episodes would break even. A simple binning estimator overstated the EVPPI of weakly informative parameters by up to three orders of magnitude.
+**Results.** All demonstrations cost 1,916 MU. Valuing child health only, the probability of positive net benefit was 0.29 (EVPI 227 MU per cohort), driven by baseline infection burden and the addressable fraction; adding caregiver time raised it to 0.91. With an uncertain null rate ratio, the probability was 0.47 and EVPI 9,450 MU, mostly attributable to the ratio, because a 1.8% reduction in episodes would break even. A 50-pupil-per-arm trial captured 88% of that value. A binning EVPPI estimator overstated weak parameters by more than an order of magnitude.
 
-**Conclusions.** Under the illustrative assumptions, the value of further research on school clean air lies almost entirely in endpoint-specific effect estimates and the share of infection burden that is addressable, rather than in cost data. A trial that cannot exclude small effects on infection episodes may be worth more than its point estimate suggests.
+**Conclusions.** Under illustrative assumptions, the value of further research on school clean air lies in endpoint-specific effect estimates, not costs.
 
 ---
 
@@ -37,6 +37,7 @@ link-citations: true
 - A deterministic "below break-even" result can coexist with a substantial probability that a school clean-air intervention is worthwhile, and with a high value of further research.
 - In the demonstrations, uncertainty about the effect on infection episodes, and about the share of infections that classroom air actually addresses, dominates the value of information. Uncertainty about equipment and running costs contributes little.
 - A null trial result is not the same as a known zero effect. When the economic break-even effect is small, an imprecise null leaves the adoption decision close to a coin toss.
+- In the demonstration, a trial of a few hundred to a few thousand pupils per arm captured most of the value of resolving the effect ratio. Beyond that point, larger trials added little value.
 - The probabilistic extension runs in a web browser with seeded, reproducible simulations and downloadable draws. All results are conditional on explicit, editable distributions.
 
 ---
@@ -177,9 +178,21 @@ Estimates were truncated to the interval [0, EVPI]. For comparison, we also comp
 
 **Population EVPI.** Population EVPI multiplies the per-cohort EVPI by the number of cohorts facing the same decision each year and by the annuity factor over the period in which the information would remain useful [@wilson2015voi]. We illustrate this for 100 to 100,000 cohorts per year over ten years at 3%.
 
+**EVSI.** To value a specific study, we estimated the expected value of sample information (EVSI) for a two-arm parallel trial that estimates the episode-rate ratio in S5. We used the regression method of Strong et al. [@strong2015evsi]. For each PSA draw, a trial estimate was simulated as $x = \ln RR + \varepsilon$, with $\varepsilon \sim N(0, \tau^2)$. Then INB was regressed on a spline of $x$, and EVSI was computed from the fitted values as for EVPPI.
+
+The standard error follows the usual approximation for a log rate ratio under the null:
+
+$$\tau^2 = \text{DE} \times \frac{2}{n\,b\,T},$$
+
+where $n$ is the number of pupils per arm, $b$ the baseline rate of 4 episodes per pupil-year, $T$ = 1 year of follow-up, and DE = 2 an assumed design effect for classroom clustering.
+
+**ENBS.** The expected net benefit of sampling (ENBS) is population EVSI minus trial cost. Population EVSI used 1,000 cohorts per year over ten years at 3%. Trial cost was an illustrative fixed cost of 250,000 MU plus 40 MU per enrolled pupil.
+
+We report EVSI under the base-case prior ($\sigma$ = 0.29) and the trial-informed prior ($\sigma$ = 0.18).
+
 ## 2.6 Implementation and verification
 
-The model and the PSA module are plain JavaScript modules (`model.mjs`, `psa.mjs`) with no dependencies. They run in the browser and in Node.js. An automated test suite of 32 tests checks the following:
+The model and the PSA module are plain JavaScript modules (`model.mjs`, `psa.mjs`) with no dependencies. They run in the browser and in Node.js. An automated test suite of 35 tests checks the following:
 
 - **Deterministic model:** parity with the manuscript demonstrations; the reciprocity of the capital-recovery and annuity factors; and the threshold identities (NPV is zero at each reported threshold).
 - **Distribution sampling:** the first two moments of each family (within 2–3% at 60,000 draws).
@@ -227,7 +240,19 @@ Under the hypothetical trial-based distribution for S5 (95% CI 0.70–1.43), $\P
 
 Population EVPI scales linearly with the number of cohorts facing the decision. Over ten years at 3% (annuity factor 8.53), 1,000 cohorts a year would give a population EVPI of 1.9 million MU for S1 and 80.6 million MU for S5. These values are upper bounds on the expected value of research that would resolve all the represented uncertainty. They are not estimates of the value of any particular study.
 
-## 3.4 Methodological checks
+## 3.4 Value of a trial
+
+The expected value of an episode-rate trial in S5 rose steeply with sample size and then levelled off (Figure 5).
+
+Under the base-case prior, a trial with 50 pupils per arm (standard error of ln RR = 0.14) had an EVSI of 8,296 MU per cohort, 88% of the EVPPI for the ratio. With 1,000 pupils per arm, EVSI reached 9,372 MU (99%).
+
+ENBS was positive across the range examined and was maximised at about 2,500 pupils per arm, at 79.8 million MU. Beyond about 1,000 pupils per arm, the curve was very flat: additional precision bought little.
+
+Under the trial-informed prior, EVSI was lower at every size (4,432 MU at 50 per arm; 5,901 MU at 2,500). The optimum remained near 2,500 per arm, with an ENBS of 49.9 million MU.
+
+These magnitudes follow directly from the small break-even effect: almost any information that shifts the probability that $RR < 0.982$ changes expected decisions for many cohorts. They should be read as properties of the illustrative inputs, not as a valuation of a real trial.
+
+## 3.5 Methodological checks
 
 **EVPI convergence.** EVPI estimates converged by about 10,000 iterations (Supplementary Figure S1). The between-seed standard deviation of EVPI at 10,000 iterations was 3.5 MU for S1 (1.5% of EVPI), 1.8 MU for S2 and 212 MU for S5 (2.2%).
 
@@ -269,7 +294,7 @@ Studies that monetise CO₂-related learning effects through exposure–response
 
 **Independence.** Parameters were sampled independently. Positive correlation between the baseline infection burden and the absence per episode, for example, would widen the NPV distribution.
 
-**Single-parameter EVPPI only.** We report only single-parameter EVPPI. Groups such as "all burden parameters" can have EVPPI greater than the sum of their parts, and the regression approach extends naturally to them [@strong2014regression]. The expected value of sample information (EVSI), which would value a specific trial design, was not estimated [@heath2017voi].
+**Single-parameter EVPPI only.** We report only single-parameter EVPPI. Groups such as "all burden parameters" can have EVPPI greater than the sum of their parts, and the regression approach extends naturally to them [@strong2014regression]. The EVSI analysis assumes a normal sampling model for ln RR with a fixed design effect, a one-year trial whose result applies immediately, and illustrative trial costs. It also ignores the delay and the decisions made while a trial is under way [@heath2017voi].
 
 **Population EVPI.** The population EVPI depends on the number of cohorts facing the decision and the information's useful life, which were illustrative here.
 
@@ -374,6 +399,10 @@ EVPI in MU per cohort.
 **Figure 4.** Single-parameter EVPPI per cohort (spline regression) for S1 and S5, with total EVPI (dashed). The seven largest parameters are shown.
 
 ![](figures/fig4-evppi.png)
+
+**Figure 5.** Expected value of sample information per cohort (left) and expected net benefit of sampling (right) for a two-arm trial of the episode-rate ratio in S5, by pupils per arm. The design effect is 2. Trial cost is 250,000 MU plus 40 MU per pupil. The population is 1,000 cohorts per year over ten years at 3%. Solid lines use the base-case prior; dashed lines use the trial-informed prior. The dotted line is the EVPPI of the ratio.
+
+![](figures/fig5-evsi.png)
 
 **Supplementary Figure S1.** Convergence of EVPI with the number of iterations: mean ± 1.96 SD across five seeds.
 

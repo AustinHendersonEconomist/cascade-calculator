@@ -1,7 +1,7 @@
 // Tests for the probabilistic sensitivity analysis module.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {rng, normalSampler, fromMoments, draw, defaultSpecs, simulate, runPSA, evpi, evppi, evppiBinned,
+import {rng, normalSampler, fromMoments, draw, defaultSpecs, simulate, runPSA, evpi, evppi, evppiBinned, evsi, seLogRateRatio,
   summarise, quantile, ceac, populationValue} from '../psa.mjs';
 import {DEFAULTS, compute} from '../model.mjs';
 import {EXAMPLES} from '../examples.mjs';
@@ -146,4 +146,31 @@ test('median-centred ratio keeps a null ratio neutral', () => {
   const a = sample(spec, 60000, 21);
   let below = 0; for (const x of a) if (x < 1) below++;
   assert.ok(Math.abs(below / a.length - 0.5) < 0.01);
+});
+
+test('EVSI matches the normal–normal preposterior closed form', () => {
+  // θ ~ N(0, 1), INB = 100 + 400θ, study SE τ: posterior-mean SD = σ²/√(σ²+τ²).
+  const n = 60000, u = rng(17), z = normalSampler(u);
+  const theta = Float64Array.from({length: n}, () => z()), nb = theta.map(t => 100 + 400 * t);
+  const closed = sd => { const m = 100, s = 400 * sd;
+    const phi = x => Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI);
+    const Phi = x => 0.5 * (1 + Math.sign(x) * Math.sqrt(1 - Math.exp(-2 * x * x / Math.PI)));
+    return s * phi(m / s) - m * Phi(-m / s); };
+  for (const tau of [0.5, 1, 2]) {
+    const sdPre = 1 / Math.sqrt(1 + tau * tau), est = evsi(theta, nb, tau, {seed: 3});
+    assert.ok(Math.abs(est - closed(sdPre)) < 0.05 * closed(sdPre) + 2, `tau ${tau}: ${est} vs ${closed(sdPre)}`);
+  }
+});
+
+test('EVSI rises with sample size towards EVPPI', () => {
+  const v = {...EXAMPLES.S5.inputs}, r = runPSA(v, {n: 5000});
+  const th = r.sim.draws.rr, nb = r.sim.netPV, full = evppi(Float64Array.from(th, Math.log), nb);
+  const vals = [50, 500, 5000, 50000].map(k => evsi(th, nb, seLogRateRatio(k, 4), {transform: Math.log}));
+  for (let i = 1; i < vals.length; i++) assert.ok(vals[i] >= vals[i - 1] - 0.02 * full);
+  assert.ok(vals.at(-1) > 0.9 * full && vals.at(-1) <= full + 1e-9);
+});
+
+test('standard error of a log rate ratio', () => {
+  assert.ok(Math.abs(seLogRateRatio(100, 4, 1, 1) - Math.sqrt(2 / 400)) < 1e-12);
+  assert.equal(seLogRateRatio(0, 4), Infinity);
 });

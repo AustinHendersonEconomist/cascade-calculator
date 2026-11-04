@@ -80,6 +80,21 @@ for ax, sid in zip(axes, ("S1", "S5")):
     ax.tick_params(axis="y", labelsize=6.8)
 save(fig, "fig4-evppi")
 
+# Figure 5: EVSI and ENBS by trial size (S5) ----------------------------------
+E = R["evsi"]
+fig, axes = plt.subplots(1, 2, figsize=(6.7, 2.4))
+for rows, lab, ls in ((E["rows"], "Moderate envelope prior (σ = 0.29)", "-"), (E["trialPrior"]["rows"], "Trial-informed prior (σ = 0.18)", "--")):
+    n = [r["perArm"] for r in rows]
+    axes[0].plot(n, [r["evsi"] for r in rows], ls, color=TEAL, lw=1.3, marker="o", ms=2.5, label=lab)
+    axes[1].plot(n, [r["enbs"] / 1e6 for r in rows], ls, color=INK, lw=1.3, marker="o", ms=2.5, label=lab)
+axes[0].axhline(E["evppiLog"], color=GREY, lw=0.7, ls=":"); axes[0].text(60, E["evppiLog"] * 1.01, "EVPPI (ratio)", fontsize=6.5, color=GREY, va="bottom")
+for ax in axes: ax.set_xscale("log"); ax.set_xlabel("Pupils per trial arm")
+axes[0].set_ylabel("EVSI per cohort (MU)"); axes[1].set_ylabel("ENBS (million MU)")
+axes[0].set_ylim(0, E["evppiLog"] * 1.12)
+axes[1].legend(frameon=False, fontsize=6.3, loc="lower center")
+fig.subplots_adjust(wspace=0.35)
+save(fig, "fig5-evsi")
+
 # Supplementary figure S1: convergence ---------------------------------------
 fig, axes = plt.subplots(1, 3, figsize=(6.7, 2.0))
 for ax, sid in zip(axes, ("S1", "S2", "S5")):

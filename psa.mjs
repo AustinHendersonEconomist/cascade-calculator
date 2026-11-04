@@ -387,6 +387,39 @@ export function evppi(theta, nb, knots = 6) {
 }
 
 /**
+ * Expected value of sample information for a study that measures one
+ * parameter with normal sampling error, by the regression method of Strong,
+ * Oakley, Brennan & Breeze (2015). For each PSA draw, a study summary is
+ * simulated as x = T(θ) + ε, ε ~ N(0, se²), where T is the scale on which
+ * the study reports (e.g. ln RR). INB is regressed on a spline of x; then
+ * EVSI ≈ mean(max(ĝ(x), 0)) − max(mean(ĝ(x)), 0), truncated to [0, EVPPI].
+ * @param {ArrayLike<number>} theta  parameter draws
+ * @param {ArrayLike<number>} nb     incremental net benefit draws
+ * @param {number} se                standard error of the study estimate on the T scale
+ * @param {object} opts              {transform = identity, seed}
+ */
+export function evsi(theta, nb, se, {transform = x => x, seed = 7} = {}) {
+  const n = nb.length;
+  if (!(se >= 0)) throw new RangeError('Standard error must be non-negative.');
+  if (!Number.isFinite(se)) return 0;
+  const z = normalSampler(rng(seed));
+  const x = Float64Array.from(theta, t => transform(t) + se * z());
+  return Math.min(evppi(x, nb), evppi(Float64Array.from(theta, transform), nb));
+}
+
+/**
+ * Approximate standard error of ln(episode-rate ratio) from a two-arm
+ * parallel study with `perArm` pupils followed for `years`, a baseline rate
+ * of `rate` episodes per pupil-year, and a design effect for clustering.
+ * Var[ln RR̂] ≈ DE × (1/E₁ + 1/E₀), with E₀ = E₁ = perArm × rate × years
+ * events under the null.
+ */
+export function seLogRateRatio(perArm, rate, years = 1, designEffect = 1) {
+  const events = perArm * rate * years;
+  return events > 0 ? Math.sqrt(designEffect * 2 / events) : Infinity;
+}
+
+/**
  * Full PSA run returning everything the interface and exports need.
  * @param {object} v     scenario
  * @param {object} opts  {envelope, specs, n, seed, lambdas}

@@ -3,7 +3,7 @@
 import {writeFileSync} from 'node:fs';
 import {compute} from '../../model.mjs';
 import {EXAMPLES} from '../../examples.mjs';
-import {runPSA, defaultSpecs, fromMoments, describe, PARAMETERS, evpi, evppiBinned, populationValue} from '../../psa.mjs';
+import {runPSA, defaultSpecs, fromMoments, evsi, seLogRateRatio, describe, PARAMETERS, evpi, evppiBinned, populationValue} from '../../psa.mjs';
 
 const out = {generated: new Date().toISOString().slice(0, 10), seed: 20261104, n: 10000, scenarios: {}};
 const dir = new URL('.', import.meta.url).pathname;
@@ -56,6 +56,30 @@ for (const [id, ex] of Object.entries(EXAMPLES)) {
   const r = runPSA(v, {specs, n: out.n, seed: out.seed});
   out.s5MeanCentred = {npv: r.npv, evpi: r.evpi};
   console.log('S5 mean-centred', r.npv.pPositive, r.npv.mean, r.evpi);
+}
+
+// EVSI for a two-arm trial of the episode-rate ratio in S5 (base case).
+{
+  const v = EXAMPLES.S5.inputs, r = runPSA(v, {n: out.n, seed: out.seed});
+  const th = r.sim.draws.rr, nb = r.sim.netPV, af = (1 - 1.03 ** -10) / 0.03, cohorts = 1000;
+  const fixed = 250000, perPupil = 40, designEffect = 2;
+  out.evsi = {designEffect, fixedCost: fixed, perPupilCost: perPupil, cohortsPerYear: cohorts, years: 10, annuity: af,
+    evppiLog: r.evppi.find(p => p.key === 'rr').evppi,
+    rows: [50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000].map(n => {
+      const se = seLogRateRatio(n, v.episodes, 1, designEffect), e = evsi(th, nb, se, {transform: Math.log, seed: 11});
+      const pop = e * cohorts * af, cost = fixed + perPupil * 2 * n;
+      return {perArm: n, se, ciHalfWidth: 1.96 * se, evsi: e, populationEVSI: pop, cost, enbs: pop - cost};
+    })};
+  for (const row of out.evsi.rows) console.log('EVSI', row.perArm, row.se.toFixed(3), row.evsi.toFixed(0), (row.enbs / 1e6).toFixed(2) + 'm');
+  // Same trial under the trial-informed prior (ln RR ~ N(0, 0.182²)).
+  const specs = defaultSpecs(v, 'moderate'), sdLog = Math.log(1.43) / 1.96;
+  specs.rr = {type: 'lognormal', mu: 0, sigma: sdLog, mean: Math.exp(sdLog ** 2 / 2), sd: Math.exp(sdLog ** 2 / 2) * Math.sqrt(Math.expm1(sdLog ** 2))};
+  const r2 = runPSA(v, {specs, n: out.n, seed: out.seed});
+  out.evsi.trialPrior = {evpi: r2.evpi, rows: out.evsi.rows.map(row => {
+    const e = evsi(r2.sim.draws.rr, r2.sim.netPV, row.se, {transform: Math.log, seed: 11}), pop = e * cohorts * af;
+    return {perArm: row.perArm, evsi: e, populationEVSI: pop, enbs: pop - row.cost};
+  })};
+  for (const row of out.evsi.trialPrior.rows) console.log('EVSI-trialprior', row.perArm, row.evsi.toFixed(0), (row.enbs / 1e6).toFixed(2) + 'm');
 }
 
 // Population EVPI for S1 and S5 across decision populations (10 years, 3%).

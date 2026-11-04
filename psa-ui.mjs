@@ -1,5 +1,5 @@
 // Interface for the probabilistic sensitivity analysis panel.
-import {runPSA, defaultSpecs, fromMoments, describe, populationValue, PARAMETERS, ENVELOPES} from './psa.mjs';
+import {runPSA, defaultSpecs, fromMoments, describe, populationValue, evsi, seLogRateRatio, PARAMETERS, ENVELOPES} from './psa.mjs';
 
 const $ = id => document.getElementById(id);
 const fmt = (n, d = 0) => Number.isFinite(n) ? n.toLocaleString('en', {minimumFractionDigits: d, maximumFractionDigits: d}) : '—';
@@ -78,12 +78,27 @@ function drawEVPPI(r) {
     : '<p class="hint">No uncertain parameters.</p>';
 }
 
+function renderTrial() {
+  const v = getState(), box = $('psa-trial');
+  const on = !!last && v.route !== 'mechanistic' && last.sim.draws.rr && last.specs.rr?.type !== 'fixed';
+  box.hidden = !on; if (!on) return;
+  const n = Number($('psa-trial-n').value), de = Number($('psa-trial-de').value);
+  const rate = v.route === 'absence' ? v.baselineDays : v.episodes;
+  if (!(n >= 1) || !(de >= 1) || !(rate > 0)) { $('psa-trial-evsi').textContent = 'Check inputs'; return; }
+  const se = seLogRateRatio(n, rate, 1, de), nb = last.sim.netPV, th = last.sim.draws.rr;
+  const value = evsi(th, nb, se, {transform: Math.log}), full = evsi(th, nb, 0, {transform: Math.log});
+  $('psa-trial-evsi').textContent = `${money(value)} · ${full > 0 ? fmt(100 * value / full) : '—'}%`;
+  const k = Number($('psa-cohorts').value), yrs = Number($('psa-years').value);
+  $('psa-trial-note').textContent = `Standard error of ln(ratio) ${fmt(se, 3)} (95% CI roughly ×/÷ ${fmt(Math.exp(1.96 * se), 2)}). Population EVSI for ${fmt(k)} cohorts a year over ${fmt(yrs)} years: ${money(populationValue(value, k, yrs, v.discount))}. Compare this with the trial's cost.`;
+}
+
 function renderPopulation() {
   if (!last) return;
   const v = getState(), per = last.evpi;
   const k = Number($('psa-cohorts').value), yrs = Number($('psa-years').value);
   const ok = Number.isFinite(k) && k >= 0 && Number.isInteger(yrs) && yrs >= 1 && yrs <= 50;
   $('psa-pop').textContent = ok ? money(populationValue(per, k, yrs, v.discount)) : 'Check inputs';
+  renderTrial();
 }
 
 function run() {
@@ -134,6 +149,7 @@ export function initPSA(stateGetter) {
   $('psa-reset-sd').addEventListener('click', () => { overrides = {}; renderSpecTable(getState()); });
   $('psa-download').addEventListener('click', downloadDraws);
   for (const id of ['psa-cohorts', 'psa-years']) $(id).addEventListener('input', renderPopulation);
+  for (const id of ['psa-trial-n', 'psa-trial-de']) $(id).addEventListener('input', renderTrial);
   renderSpecTable(getState());
   return {
     update(valid) {
