@@ -3,7 +3,7 @@
 import {writeFileSync} from 'node:fs';
 import {compute} from '../../model.mjs';
 import {EXAMPLES} from '../../examples.mjs';
-import {runPSA, defaultSpecs, describe, PARAMETERS, evpi, evppiBinned, populationValue} from '../../psa.mjs';
+import {runPSA, defaultSpecs, fromMoments, describe, PARAMETERS, evpi, evppiBinned, populationValue} from '../../psa.mjs';
 
 const out = {generated: new Date().toISOString().slice(0, 10), seed: 20261104, n: 10000, scenarios: {}};
 const dir = new URL('.', import.meta.url).pathname;
@@ -19,7 +19,7 @@ for (const [id, ex] of Object.entries(EXAMPLES)) {
       ceac: r.ceac, clamped: r.clampedDraws};
     if (env === 'moderate') {
       rec.specs = Object.fromEntries(Object.entries(r.specs).map(([k, s]) => [k, {label: PARAMETERS[k].label, family: PARAMETERS[k].family,
-        mean: s.mean * PARAMETERS[k].scale, sd: (s.sd ?? 0) * PARAMETERS[k].scale, text: describe(s, PARAMETERS[k].scale)}]));
+        centre: (s.median ?? s.mean) * PARAMETERS[k].scale, mean: s.mean * PARAMETERS[k].scale, sd: (s.sd ?? 0) * PARAMETERS[k].scale, text: describe(s, PARAMETERS[k].scale)}]));
       const {sim} = r, keys = sim.keys;
       const lines = [['iteration', ...keys, 'costPV', 'benefitPV', 'netPV', 'healthPV', 'qalyPV'].join(',')];
       for (let i = 0; i < sim.n; i++) lines.push([i + 1, ...keys.map(k => sim.draws[k][i]), sim.costPV[i], sim.benefitPV[i], sim.netPV[i], sim.healthPV[i], sim.qalyPV[i]].join(','));
@@ -46,6 +46,16 @@ for (const [id, ex] of Object.entries(EXAMPLES)) {
   specs.rr.sd = specs.rr.mean * Math.sqrt(Math.exp(sdLog ** 2) - 1);
   const r = runPSA(v, {specs, n: out.n, seed: out.seed});
   out.s5Trial = {sdLog, npv: r.npv, evpi: r.evpi, evppi: r.evppi.slice(0, 4)};
+}
+
+// Parameterisation check: S5 with a mean-centred (rather than median-centred)
+// lognormal for the endpoint ratio.
+{
+  const v = EXAMPLES.S5.inputs, specs = defaultSpecs(v, 'moderate');
+  specs.rr = fromMoments('lognormal', 1, 0.3);
+  const r = runPSA(v, {specs, n: out.n, seed: out.seed});
+  out.s5MeanCentred = {npv: r.npv, evpi: r.evpi};
+  console.log('S5 mean-centred', r.npv.pPositive, r.npv.mean, r.evpi);
 }
 
 // Population EVPI for S1 and S5 across decision populations (10 years, 3%).

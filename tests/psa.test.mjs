@@ -139,3 +139,11 @@ test('regression EVPPI captures nonlinear dependence', () => {
   const nb = theta.map(t => 400 * t * t - 400); // E[NB] = 0, sign depends on |θ|
   assert.ok(evppi(theta, nb) > 0.95 * evpi(nb));
 });
+
+test('median-centred ratio keeps a null ratio neutral', () => {
+  const spec = fromMoments('logratio', 1, 0.3);
+  assert.equal(spec.mu, 0);
+  const a = sample(spec, 60000, 21);
+  let below = 0; for (const x of a) if (x < 1) below++;
+  assert.ok(Math.abs(below / a.length - 0.5) < 0.01);
+});

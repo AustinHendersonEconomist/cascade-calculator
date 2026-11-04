@@ -15,9 +15,11 @@
 // intervention, whose incremental net benefit is zero by definition.
 // Distribution conventions follow Briggs, Claxton & Sculpher (2006):
 // beta for probabilities and proportions, gamma for costs and positive
-// burdens, lognormal for ratios, normal for effects that can take either
-// sign. Parameters are matched by the method of moments to a mean (the
-// current deterministic input) and a standard deviation.
+// burdens, lognormal for ratios and positive measurements, normal for effects that
+// can take either sign. Most parameters are matched by the method of moments
+// to a mean (the current deterministic input) and a standard deviation. The
+// matched endpoint ratio is instead centred on its median, ln-symmetric
+// about the point estimate, so that a null ratio of 1 remains a null.
 //
 // Default distributions are generic uncertainty envelopes. They are not
 // calibrated evidence, and the PSA results inherit that status.
@@ -101,6 +103,15 @@ export function fromMoments(type, mean, sd) {
       const s2 = Math.log(1 + (sd / mean) ** 2);
       return {type, mean, sd, mu: Math.log(mean) - s2 / 2, sigma: Math.sqrt(s2)};
     }
+    case 'logratio': {
+      // Ratio estimated on the log scale: the point estimate is the median,
+      // exp(μ), as when μ = ln(RR) and σ = SE[ln(RR)] (Briggs et al., 2006).
+      // `sd` is converted to σ through the lognormal CV relation.
+      if (mean <= 0) return {type: 'fixed', mean, sd: 0};
+      const sigma = Math.sqrt(Math.log(1 + (sd / mean) ** 2)), mu = Math.log(mean);
+      return {type: 'lognormal', mean: Math.exp(mu + sigma * sigma / 2), median: mean,
+        sd: Math.exp(mu + sigma * sigma / 2) * Math.sqrt(Math.expm1(sigma * sigma)), mu, sigma};
+    }
     case 'normal':
       return {type, mean, sd};
     case 'uniform': {
@@ -160,7 +171,7 @@ export const PARAMETERS = Object.freeze({
   episodes:           {label: 'Baseline infection burden', family: 'gamma', scale: 1, routes: ['mechanistic', 'infection']},
   addressable:        {label: 'Addressable infection fraction', family: 'beta', scale: 100, routes: ['mechanistic']},
   baselineDays:       {label: 'Baseline absence burden', family: 'gamma', scale: 1, routes: ['absence']},
-  rr:                 {label: 'Matched endpoint ratio', family: 'lognormal', scale: 1, routes: ['infection', 'absence']},
+  rr:                 {label: 'Matched endpoint ratio', family: 'logratio', scale: 1, routes: ['infection', 'absence']},
   capital:            {label: 'Up-front capital', family: 'gamma', scale: 1, routes: ['mechanistic', 'infection', 'absence']},
   operating:          {label: 'Annual operation & maintenance', family: 'gamma', scale: 1, routes: ['mechanistic', 'infection', 'absence']},
   medicalProbability: {label: 'Medically attended episodes', family: 'beta', scale: 100, routes: ['mechanistic', 'infection']},
@@ -179,9 +190,10 @@ export const ENVELOPES = Object.freeze({low: 0.1, moderate: 0.3, high: 0.6});
  * Default PSA specification for a scenario: each relevant parameter receives
  * its family's distribution with mean equal to the current input and
  * SD = cv × |mean|. The terminal learning gain, which may be zero, uses an
- * absolute SD of max(cv × |mean|, 0.01 SD) when learning is included. A
- * matched endpoint ratio of exactly 1 keeps its uncertainty (lognormal with
- * mean 1), so the null case is not artificially certain.
+ * absolute SD of max(cv × |mean|, 0.01 SD) when learning is included. The
+ * matched endpoint ratio uses a lognormal with median equal to the input and
+ * σ = √ln(1 + cv²), so a null ratio of 1 keeps its uncertainty without being
+ * tilted towards benefit.
  */
 export function defaultSpecs(v, envelope = 'moderate') {
   const cv = typeof envelope === 'number' ? envelope : ENVELOPES[envelope];

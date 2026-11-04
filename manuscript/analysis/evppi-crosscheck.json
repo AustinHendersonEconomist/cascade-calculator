@@ -54,27 +54,27 @@
  "S5": [
   {
    "key": "rr",
-   "js_spline": 11244.763675096247,
-   "js_binning": 11251.566659197124,
-   "py_spline": 11244.753448882417
-  },
-  {
-   "key": "capital",
-   "js_spline": 37.35091459487253,
-   "js_binning": 613.4690717725158,
-   "py_spline": 37.351434725315634
+   "js_spline": 9424.695686687739,
+   "js_binning": 9444.43053242351,
+   "py_spline": 9424.69175663647
   },
   {
    "key": "operating",
-   "js_spline": 14.02626833693975,
-   "js_binning": 577.6540334185332,
-   "py_spline": 14.026617672005324
+   "js_spline": 1.543530805619032,
+   "js_binning": 27.974613668810587,
+   "py_spline": 1.543673290827684
   },
   {
-   "key": "medicalCost",
-   "js_spline": 0.3651432651925483,
-   "js_binning": 633.8994007669318,
-   "py_spline": 0.3654427168542403
+   "key": "capital",
+   "js_spline": 0.7521348890471937,
+   "js_binning": 29.57858877654721,
+   "py_spline": 0.7521402145227254
+  },
+  {
+   "key": "episodes",
+   "js_spline": 0,
+   "js_binning": 10.740932886156585,
+   "py_spline": 0.0
   }
  ]
 }

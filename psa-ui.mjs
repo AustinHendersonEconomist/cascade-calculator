@@ -15,6 +15,7 @@ function specsFor(v) {
     if (!(k in specs)) continue;
     const p = PARAMETERS[k];
     specs[k] = fromMoments(p.family, v[k] / p.scale, sd / p.scale);
+    if (p.family === 'logratio') specs[k].sdInput = sd / p.scale;
   }
   return specs;
 }
@@ -23,8 +24,8 @@ function renderSpecTable(v) {
   let specs;
   try { specs = specsFor(v); } catch { return; }
   $('psa-spec-table').innerHTML = Object.entries(specs).map(([k, s]) => {
-    const p = PARAMETERS[k], sd = (s.sd ?? 0) * p.scale;
-    return `<tr><th scope="row">${esc(p.label)}</th><td>${esc(p.family)}</td><td>${fmt(v[k], 4)}</td>
+    const p = PARAMETERS[k], sd = (p.family === 'logratio' ? (s.sdInput ?? (s.median ?? s.mean) * Math.sqrt(Math.expm1((s.sigma ?? 0) ** 2))) : (s.sd ?? 0)) * p.scale;
+    return `<tr><th scope="row">${esc(p.label)}</th><td>${esc(p.family === 'logratio' ? 'lognormal (median-centred)' : p.family)}</td><td>${fmt(v[k], 4)}</td>
       <td><input type="number" min="0" step="any" data-psa-sd="${k}" value="${Number(sd.toPrecision(4))}" aria-label="Standard deviation for ${esc(p.label)}"></td>
       <td>${esc(describe(s, p.scale))}</td></tr>`;
   }).join('') || '<tr><td colspan="5">No uncertain parameters apply to this route.</td></tr>';
