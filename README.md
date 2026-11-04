@@ -8,6 +8,7 @@ CASCADE explores the conditions under which a specified school clean-air interve
 
 - **Calculator:** explicit costs, outcome assumptions, break-even thresholds, deterministic sensitivity analysis, saved comparisons and scenario exports.
 - **Research:** the framework, evidence compatibility, valuation scope and worked manuscript examples.
+- **Classroom day:** an animated, minute-by-minute simulation of one school day in a 225 m³ classroom (`classroom-day.html`, model in `classroom-day.mjs`). It tracks CO₂, airborne infection risk from one infectious pupil (Wells–Riley), outdoor-origin PM2.5 and heating and fan energy cost under window, air-cleaner and timetable strategies. Lesson-average airflows can be passed to the calculator.
 - **NZ classroom:** a separate cost and break-even application in New Zealand dollars for a defined older classroom. Sources and supplier prices are dated 13 September 2026.
 
 ## Probabilistic sensitivity analysis

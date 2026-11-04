@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Watch one school day in a classroom minute by minute: CO₂, airborne infection risk, smoke particles and the heating bill, as windows open and air cleaners run.">
+<meta name="theme-color" content="#142f35"><title>A Day in Room 12 | CASCADE</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%23142f35'/%3E%3Cpath d='M10 17h23M15 24h23M10 31h19' stroke='%23c7e6bd' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="refinements.css">
+<style>
+.day-hero{display:grid;grid-template-columns:1.1fr 1fr;gap:60px;padding:56px 0 30px;align-items:end}
+.day-hero h1{font-size:60px}
+.day-hero p{font-size:16px;color:var(--muted);max-width:520px;line-height:1.7}
+.question{background:var(--mint);border-radius:var(--radius);padding:24px 26px;font-size:14px;color:var(--muted)}
+.question strong{display:block;font-family:var(--serif);font-weight:400;font-size:24px;line-height:1.25;color:var(--ink);margin-bottom:10px}
+.stage{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:22px;align-items:start}
+.room-card{background:white;border:1px solid var(--line);border-radius:var(--radius);padding:16px;position:relative}
+#room{width:100%;height:auto;display:block;border-radius:12px;touch-action:none}
+.room-caption{font-size:12px;color:var(--muted);margin:10px 4px 0}
+.transport{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap}
+.transport input[type=range]{flex:1 1 220px;accent-color:var(--teal)}
+.transport select{width:auto;min-height:42px}
+.clock-card{background:var(--ink);color:#edf4e9;border-radius:var(--radius);padding:22px 24px}
+.clock{font-size:52px;font-weight:550;letter-spacing:-1.5px;font-variant-numeric:tabular-nums;line-height:1}
+.period{color:#c7d6d0;font-size:13px;margin-top:6px}
+.gauges{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;border-top:1px solid #ffffff25;padding-top:18px}
+.gauge span{display:block;font-size:11px;color:#c7d6d0;margin-bottom:3px}
+.gauge strong{font-size:22px;font-weight:550;font-variant-numeric:tabular-nums}
+.gauge small{display:block;font-size:11px;color:#c7d6d0;margin-top:2px}
+.meter{height:6px;background:#ffffff1f;border-radius:4px;margin-top:6px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--lime);border-radius:4px;transition:width .2s}
+.meter.warn i{background:#f3c27b}.meter.bad i{background:#ef8f74}
+.controls{background:white;border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin-top:16px}
+.controls h3{font-size:15px;margin-bottom:12px}
+.control-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+.control-grid label{font-size:12px;font-weight:600;display:block}
+.control-grid select,.control-grid input[type=number]{margin-top:5px}
+.checks{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px}
+.checks label{display:flex;gap:8px;align-items:center;font-size:13px}
+.checks input{width:18px;height:18px;accent-color:var(--teal)}
+.preset-row button[aria-pressed=true]{background:var(--ink);color:white;border-color:var(--ink)}
+.chart-wrap{background:white;border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 8px;margin-top:22px}
+.chart-wrap svg text{font-size:11px;fill:var(--muted);font-family:inherit}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:2px 4px 8px}
+.legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:6px;background:var(--teal)}
+.legend i.ghost{background:#b9c5bf}.legend i.q{background:#b4552c}
+.findings{margin-top:50px;border-top:1px solid var(--line);padding-top:36px}
+.findings .table-scroll{border:1px solid var(--line);background:white}
+.findings tr.current th,.findings tr.current td{background:var(--mint)}
+.insights{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+.insights article{background:white;border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+.insights h3{font-family:var(--serif);font-weight:400;font-size:22px;line-height:1.2;margin:10px 0 10px}
+.insights p{font-size:13px;color:var(--muted);line-height:1.7}
+.handoff{display:flex;justify-content:space-between;gap:24px;align-items:center;background:var(--mint);border-radius:var(--radius);padding:24px 26px;margin-top:22px}
+.handoff p{margin:0;font-size:14px;color:var(--muted);max-width:720px}
+.handoff a{white-space:nowrap;font-weight:650;text-decoration:none}
+.assumptions{margin-top:30px}
+.assumptions td:first-child{white-space:nowrap}
+@media(max-width:900px){.stage{grid-template-columns:1fr}.day-hero{grid-template-columns:1fr;gap:24px;padding-top:34px}.insights{grid-template-columns:1fr}}
+@media(max-width:520px){.day-hero h1{font-size:44px}.control-grid{grid-template-columns:1fr}.clock{font-size:42px}.gauges{gap:12px}.handoff{display:block}.handoff a{display:inline-block;margin-top:12px}}
+</style>
+<script type="module" src="classroom-day-app.mjs"></script>
+</head>
+<body>
+<a href="#stage" class="skip">Skip to the simulation</a>
+<header class="site-header"><div class="header-inner">
+  <a class="brand" href="index.html" aria-label="CASCADE home"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M4 10h23M9 18h23M4 26h19"/></svg><span>CASCADE<small>Clean air. Clearer decisions.</small></span></a>
+  <nav aria-label="Main navigation"><a href="index.html#workspace">Calculator</a><a href="research.html">Research</a><a href="classroom-day.html" class="active" aria-current="page">Classroom day</a><a href="nz-policy/nz-classroom.html">NZ classroom</a></nav>
+  <span class="review-label"><i></i> Research preview</span>
+</div></header>
+<main>
+<section class="day-hero" aria-labelledby="page-title">
+  <div><div class="eyebrow">04 / SIMULATE · ONE WINTER DAY, MINUTE BY MINUTE</div><h1 id="page-title">A day in<br><em>Room 12.</em></h1>
+  <p>Twenty-five pupils, one teacher, 225 cubic metres of air and one child who came to school with a cold. Open the windows, switch on the air cleaners, keep everyone in on a rainy day, then watch what happens to the air, the risk and the heating bill.</p></div>
+  <div class="question"><strong>Fresh air and clean air are not the same thing.</strong>CO₂ tracks how much outdoor air comes in. Infection risk depends on every way particles leave the room, including filtration. Heating cost depends on how much warm air goes out of the window. This page shows all three, minute by minute.</div>
+</section>
+
+<section id="stage" class="stage" aria-label="Classroom simulation">
+  <div>
+    <div class="room-card">
+      <canvas id="room" width="900" height="720" role="img" aria-label="Animated plan of the classroom"></canvas>
+      <p class="room-caption" id="room-caption">Plan view, 10 × 7.5 m. Dots are pupils; the ringed dot is the infectious pupil. Drifting specks show how airborne infectious particles build up (not to scale). The haze colour follows CO₂.</p>
+      <div class="transport">
+        <button id="play" class="primary" type="button" aria-pressed="false">▶ Play the day</button>
+        <label class="sr-only" for="scrub">Time of day</label>
+        <input id="scrub" type="range" min="0" max="419" step="1" value="0">
+        <label class="sr-only" for="speed">Playback speed</label>
+        <select id="speed"><option value="0.5">Slow</option><option value="1" selected>Normal</option><option value="3">Fast</option></select>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <div class="legend"><span><i></i>Your settings</span><span><i class="ghost"></i>Shut tight, for comparison</span><span><i class="q"></i>Infection risk to a pupil (right panel)</span></div>
+      <div id="chart"></div>
+    </div>
+  </div>
+  <div>
+    <div class="clock-card" aria-live="off">
+      <div class="clock" id="clock">8:30</div>
+      <div class="period" id="period">Before school</div>
+      <div class="gauges">
+        <div class="gauge"><span>CO₂</span><strong id="g-co2">—</strong><small id="g-co2-note">ppm</small><div class="meter" id="m-co2"><i></i></div></div>
+        <div class="gauge"><span>Infection risk so far</span><strong id="g-risk">—</strong><small>for one pupil</small><div class="meter" id="m-risk"><i></i></div></div>
+        <div class="gauge"><span>PM2.5 from outside</span><strong id="g-pm">—</strong><small>µg/m³</small></div>
+        <div class="gauge"><span>Energy cost today</span><strong id="g-cost">—</strong><small id="g-cost-note">heating + fans</small></div>
+      </div>
+    </div>
+    <p class="sr-only" id="live" aria-live="polite"></p>
+    <div class="controls">
+      <h3>Try a strategy</h3>
+      <div class="preset-row" id="presets"></div>
+      <div class="control-grid">
+        <label>Windows in lessons<select id="windowsLesson"></select></label>
+        <label>Windows at breaks<select id="windowsBreak"></select></label>
+        <label>Air cleaners<select id="hepaUnits"><option value="0">None</option><option value="1">One unit</option><option value="2">Two units</option><option value="3">Three units</option></select></label>
+        <label>Fan speed<select id="hepaSpeed"></select></label>
+        <label>Air cleaners run<select id="hepaMode"><option value="off">Off</option><option value="lessons">During lessons</option><option value="occupied">Whenever occupied</option><option value="allday">All day</option></select></label>
+        <label>Outside temperature<select id="outdoorTemp"><option value="2">2 °C · frosty</option><option value="7" selected>7 °C · winter</option><option value="12">12 °C · spring</option><option value="18">18 °C · mild</option></select></label>
+        <label>Heating<select id="heatingCOP"><option value="1">Electric resistive</option><option value="3">Heat pump (COP 3)</option></select></label>
+        <label>Outdoor air<select id="outdoorPM"><option value="6">Clean day · 6 µg/m³</option><option value="25">Smoky day · 25 µg/m³</option></select></label>
+      </div>
+      <div class="checks">
+        <label><input type="checkbox" id="infector" checked> An infectious pupil attends</label>
+        <label><input type="checkbox" id="rainyDay"> Rainy day: everyone stays in at breaks</label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="findings" aria-labelledby="compare-heading">
+  <div class="section-top"><div><span class="eyebrow">THE SAME DAY, SIX WAYS</span><h2 id="compare-heading">What each strategy buys.</h2></div></div>
+  <p class="section-description">Each row reruns today with your conditions (temperature, heating, number of air cleaners, rain, outdoor air) and a different strategy. Expected new infections = 24 susceptible pupils × each pupil's risk; this is an illustration under assumed emission rates, not a forecast.</p>
+  <div class="table-scroll"><table><thead><tr><th scope="col">Strategy</th><th scope="col">Peak CO₂</th><th scope="col">Lesson minutes &gt; 1,000 ppm</th><th scope="col">Risk to a pupil</th><th scope="col">Expected new infections</th><th scope="col">Mean lesson PM2.5</th><th scope="col">Energy cost</th></tr></thead><tbody id="compare"></tbody></table></div>
+  <div class="insights">
+    <article><span class="eyebrow">01</span><h3>CO₂ is a ventilation meter, not an infection meter.</h3><p>Air cleaners leave CO₂ unchanged but remove infectious particles. A classroom can show high CO₂ and lower infection risk, or the reverse.</p></article>
+    <article><span class="eyebrow">02</span><h3>In winter, fresh air costs heat.</h3><p>Every litre of outdoor air must be warmed. Opening windows wide can cost several times as much in heating as running two air cleaners. Ventilation still does what filtration cannot: it removes CO₂ and other indoor gases.</p></article>
+    <article><span class="eyebrow">03</span><h3>When the fan runs matters.</h3><p>Particles left in the air when lessons begin, or that build up on a rainy lunchtime, add to the day's dose. Equal hourly airflow at different times can give different exposures.</p></article>
+  </div>
+  <div class="handoff"><p id="handoff-text">Take today's average clean-air delivery to the calculator, where its costs and valued outcomes can be compared over years.</p><a id="handoff" href="index.html#workspace">Open in the calculator ↗</a></div>
+
+  <details class="evidence-detail assumptions"><summary>Model and assumptions</summary>
+    <p class="hint">The room is treated as one well-mixed box, simulated in one-minute steps. Each equation is integrated exactly within a step. The infection probability for a susceptible pupil follows the Wells–Riley form, P = 1 − exp(−dose), where the dose is the pupil's inhalation multiplied by the time-integrated concentration of infectious quanta. Every number below is an assumption chosen for illustration.</p>
+    <div class="table-scroll"><table><thead><tr><th scope="col">Quantity</th><th scope="col">Value</th><th scope="col">Basis</th></tr></thead><tbody>
+      <tr><td>Room</td><td>225 m³; 25 pupils + 1 teacher</td><td>The 10 × 7.5 × 3 m archetype from the NZ classroom case</td></tr>
+      <tr><td>Timetable</td><td>8:55–10:30, 10:50–12:30, 13:30–15:00 lessons</td><td>Typical NZ primary pattern; the room empties at breaks unless it is raining</td></tr>
+      <tr><td>Outdoor air</td><td>Closed 0.8 · ajar 3 · open 8 · wide 15 L/s/person</td><td>Illustrative. "Ajar" matches the NZ case's assumed winter rate; real window flows vary with wind and temperature</td></tr>
+      <tr><td>Air cleaners</td><td>125–508 m³/h and 3–60 W per unit by speed</td><td>Seller-listed figures for the NZ case's benchmark device; not classroom measurements</td></tr>
+      <tr><td>CO₂ generation</td><td>0.0037 L/s per pupil; 0.0052 L/s per adult</td><td>Approximate values for sedentary activity (Persily &amp; de Jonge, 2017, <i>Indoor Air</i>)</td></tr>
+      <tr><td>Infectious emission</td><td>5 quanta/h from one pupil</td><td>Hypothetical value for a common respiratory infection; quanta rates vary by orders of magnitude</td></tr>
+      <tr><td>Inhalation; aerosol losses</td><td>0.32 m³/h; deposition 0.3/h + inactivation 0.3/h</td><td>Illustrative</td></tr>
+      <tr><td>Outdoor PM2.5</td><td>Penetration 0.8; deposition 0.2/h</td><td>Illustrative; indoor sources are excluded</td></tr>
+      <tr><td>Heating</td><td>Sensible heat of outdoor air to 20 °C at NZ$0.30/kWh</td><td>Tariff as assumed in the NZ case; ignores fabric losses common to all strategies</td></tr>
+    </tbody></table></div>
+    <p class="hint">Not modelled: close-range transmission, imperfect mixing near the infectious pupil, pupils' movement between rooms, immunity, symptoms, noise, draughts and thermal comfort. MoE guidance suggests more ventilation when CO₂ stays above 800 ppm for over an hour. Model source: <code>classroom-day.mjs</code> (tested).</p>
+  </details>
+</section>
+</main>
+<footer><div class="footer-brand">CASCADE <span>Classroom Air, School-acquired Contagion,<br>And Downstream Economics</span></div><p>Austin Henderson · University of Otago<br>Classroom day simulator · November 2026 · <a href="research.html">Research &amp; scope</a></p><p>No accounts. No analytics.<br>Everything runs in your browser.</p></footer>
+<noscript><p style="padding:20px">Enable JavaScript to run the simulation.</p></noscript>
+</body>
+</html>

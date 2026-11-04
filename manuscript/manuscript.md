@@ -14,7 +14,7 @@ link-citations: true
 
 **Corresponding author:** Austin Henderson, University of Otago, Dunedin, New Zealand. Email: [to be completed].
 
-**Word count:** main text approximately 4,600 words, excluding the abstract, tables, figure legends and references. 3 tables; 4 figures; 1 supplementary figure.
+**Word count:** main text approximately 4,000 words, excluding the abstract, tables, figure legends and references. 3 tables; 4 figures; 1 supplementary figure.
 
 ---
 
