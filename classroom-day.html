@@ -30,7 +30,7 @@
 .meter i{display:block;height:100%;background:var(--lime);border-radius:4px;transition:width .2s}
 .meter.warn i{background:#f3c27b}.meter.bad i{background:#ef8f74}
 .controls{background:white;border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin-top:16px}
-.controls h3{font-size:15px;margin-bottom:12px}
+.controls .controls-title{font-size:15px;letter-spacing:0;font-weight:650;margin-bottom:12px}
 .control-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
 .control-grid label{font-size:12px;font-weight:600;display:block}
 .control-grid select,.control-grid input[type=number]{margin-top:5px}
@@ -105,7 +105,7 @@
     </div>
     <p class="sr-only" id="live" aria-live="polite"></p>
     <div class="controls">
-      <h3>Try a strategy</h3>
+      <h2 class="controls-title">Try a strategy</h2>
       <div class="preset-row" id="presets"></div>
       <div class="control-grid">
         <label>Windows in lessons<select id="windowsLesson"></select></label>
@@ -128,7 +128,7 @@
 <section class="findings" aria-labelledby="compare-heading">
   <div class="section-top"><div><span class="eyebrow">THE SAME DAY, SIX WAYS</span><h2 id="compare-heading">What each strategy buys.</h2></div></div>
   <p class="section-description">Each row reruns today with your conditions (temperature, heating, number of air cleaners, rain, outdoor air) and a different strategy. Expected new infections = 24 susceptible pupils × each pupil's risk; this is an illustration under assumed emission rates, not a forecast.</p>
-  <div class="table-scroll"><table><thead><tr><th scope="col">Strategy</th><th scope="col">Peak CO₂</th><th scope="col">Lesson minutes &gt; 1,000 ppm</th><th scope="col">Risk to a pupil</th><th scope="col">Expected new infections</th><th scope="col">Mean lesson PM2.5</th><th scope="col">Energy cost</th></tr></thead><tbody id="compare"></tbody></table></div>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table 1"><table><thead><tr><th scope="col">Strategy</th><th scope="col">Peak CO₂</th><th scope="col">Lesson minutes &gt; 1,000 ppm</th><th scope="col">Risk to a pupil</th><th scope="col">Expected new infections</th><th scope="col">Mean lesson PM2.5</th><th scope="col">Energy cost</th></tr></thead><tbody id="compare"></tbody></table></div>
   <div class="insights">
     <article><span class="eyebrow">01</span><h3>CO₂ is a ventilation meter, not an infection meter.</h3><p>Air cleaners leave CO₂ unchanged but remove infectious particles. A classroom can show high CO₂ and lower infection risk, or the reverse.</p></article>
     <article><span class="eyebrow">02</span><h3>In winter, fresh air costs heat.</h3><p>Every litre of outdoor air must be warmed. Opening windows wide can cost several times as much in heating as running two air cleaners. Ventilation still does what filtration cannot: it removes CO₂ and other indoor gases.</p></article>
@@ -138,7 +138,7 @@
 
   <details class="evidence-detail assumptions"><summary>Model and assumptions</summary>
     <p class="hint">The room is treated as one well-mixed box, simulated in one-minute steps. Each equation is integrated exactly within a step. The infection probability for a susceptible pupil follows the Wells–Riley form, P = 1 − exp(−dose), where the dose is the pupil's inhalation multiplied by the time-integrated concentration of infectious quanta. Every number below is an assumption chosen for illustration.</p>
-    <div class="table-scroll"><table><thead><tr><th scope="col">Quantity</th><th scope="col">Value</th><th scope="col">Basis</th></tr></thead><tbody>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table 2"><table><thead><tr><th scope="col">Quantity</th><th scope="col">Value</th><th scope="col">Basis</th></tr></thead><tbody>
       <tr><td>Room</td><td>225 m³; 25 pupils + 1 teacher</td><td>The 10 × 7.5 × 3 m archetype from the NZ classroom case</td></tr>
       <tr><td>Timetable</td><td>8:55–10:30, 10:50–12:30, 13:30–15:00 lessons</td><td>Typical NZ primary pattern; the room empties at breaks unless it is raining</td></tr>
       <tr><td>Outdoor air</td><td>Closed 0.8 · ajar 3 · open 8 · wide 15 L/s/person</td><td>Illustrative. "Ajar" matches the NZ case's assumed winter rate; real window flows vary with wind and temperature</td></tr>
